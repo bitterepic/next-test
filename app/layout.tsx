@@ -1,16 +1,15 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import {
+  //Geist, Geist_Mono,
+  Mochiy_Pop_P_One,
+} from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
+const font = Mochiy_Pop_P_One({
+  weight: "400",
+  variable: '--font-mochiy-mono',
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -26,7 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${font.variable} antialiased`}
       >
         <Providers>{children}</Providers>
       </body>
