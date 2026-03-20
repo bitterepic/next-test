@@ -8,8 +8,8 @@ import {
 } from '@/lib/graphql/generated/graphql';
 import { useQuery } from '@apollo/client';
 import type { NextPage } from 'next';
-import VideoCard from "@/components/video-card";
-import Link from "next/link";
+import VideoCard from '@/components/video-card';
+import Link from 'next/link';
 
 import Image from 'next/image';
 
@@ -42,21 +42,24 @@ const Page: NextPage = () => {
       </div>
     );
 
-    console.log("RENDER");
+  console.log('RENDER');
 
   return (
-    <div className="flex gap-1 absolute top-0 left-0 right-0 bottom-0 overflow-scroll  dark:bg-gray-1000">
+    <div className="flex flex-col gap-1 absolute top-0 left-0 right-0 bottom-0 overflow-scroll  dark:bg-gray-1000">
+      <h1 className="branding text-[24px] font-bold py-4 px-4">
+        <Link href="/">Samansa</Link>
+      </h1>
       <div>
         {homeScreenData.homeScreens.map(({ id, category, videos }) => {
           if (!videos?.length) return null;
           return (
             <section key={id}>
-              <h2 className="category text-[24px] font-bold mt-8 mb-2">
+              <h2 className="category text-[16px] font-bold mt-4 -mb-2 px-4">
                 <Link href={`/categories/${category?.id}`}>
                   {category?.name ?? 'unnamed category'}
                 </Link>
               </h2>
-              <div className="videos flex gap-2">
+              <div className="videos flex flex-row gap-2 overflow-scroll py-4 px-4">
                 {(videos ?? []).map((v) => {
                   return <VideoCard value={v} key={v.id} />;
                 })}

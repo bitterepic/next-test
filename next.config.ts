@@ -12,14 +12,14 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  //async rewrites() {
-  //  return [
-  //    {
-  //      source: '/videos/:id',
-  //      destination: '/',
-  //    },
-  //  ];
-  //},
+  async rewrites() {
+    return [
+      {
+        source: '/videos/:id',
+        destination: '/',
+      },
+    ];
+  },
 };
 
 export default nextConfig;
