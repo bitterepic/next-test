@@ -7,7 +7,7 @@ import Link from 'next/link';
 import classnames from 'classnames';
 
 const VideoCard: FC<{
-  value: Pick<OriginalVideo, 'id' | 'landscapeThumbnail' | 'title'|'duration'>;
+  value: Pick<OriginalVideo, 'id' | 'landscapeThumbnail' | 'title'> & { duration: Pick<OriginalVideo["duration"], "seconds"| "minutes">};
 }> = (props) => {
   const width = 320;
   const height = 180;

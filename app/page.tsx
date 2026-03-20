@@ -1,5 +1,7 @@
 'use client';
 
+import { use } from 'react';
+import { createPortal } from 'react-dom';
 import {
   GetCategoryDocument,
   GetHomeScreensDocument,
@@ -13,23 +15,34 @@ import Link from 'next/link';
 
 import Image from 'next/image';
 
-const Page: NextPage = () => {
-  const { data: homeScreenData } = useQuery(GetHomeScreensDocument);
-  const { data: VideoData } = useQuery(GetOriginalVideoDocument, {
-    variables: { id: '1314' },
-  });
+const Page: NextPage<{
+  searchParams: Promise<{ videoId?: string[]; categoryId?: string[] }>;
+}> = (props) => {
+  const { categoryId:[categoryId] =[], videoId: [videoId] = [] } = use(props.searchParams);
+  const { data: homeScreenData, loading: homeScreenLoading } = useQuery(
+    GetHomeScreensDocument,
+  );
+  const { data: videoData, loading: videoDataLoading } = useQuery(
+    GetOriginalVideoDocument,
+    {
+      variables: { id: videoId ?? '-1' },
+      skip: !videoId,
+    },
+  );
   const {
     data: videoCommentsData, //fetchMore
+    loading: videoCommentsLoading,
   } = useQuery(GetVideoCommentsDocument, {
-    variables: { id: '1480', first: 5 },
+    variables: { id: videoId ?? '-1', first: 5 },
+    skip: !videoId,
   });
   const { data: categoryData } = useQuery(GetCategoryDocument, {
-    variables: { id: '2' },
+    variables: { id: categoryId ?? '-1' },
+    skip: !categoryId,
   });
+  console.log({ categoryId });
 
-  console.log({ homeScreenData, VideoData, videoCommentsData, categoryData });
-
-  if (!homeScreenData || !VideoData || !videoCommentsData || !categoryData)
+  if (!homeScreenData)
     return (
       <div className="flex items-center content-center justify-center absolute left-0 bottom-0 right-0 top-0">
         <Image
@@ -41,8 +54,6 @@ const Page: NextPage = () => {
         />
       </div>
     );
-
-  console.log('RENDER');
 
   return (
     <div className="flex flex-col gap-1 absolute top-0 left-0 right-0 bottom-0 overflow-scroll  dark:bg-gray-1000">
@@ -57,11 +68,63 @@ const Page: NextPage = () => {
               <h2 className="category text-[16px] font-bold mt-4 -mb-2 px-4">
                 <Link href={`/categories/${category?.id}`}>
                   {category?.name ?? 'unnamed category'}
+                  {(() => {
+                    if (
+                      category?.id === categoryData?.category.id &&
+                      categoryData
+                    ) {
+                          return createPortal(
+                            <div
+                              style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                zIndex: 1000,
+                                backgroundColor: 'green',
+                              }}
+                            >
+                              <Link href="/">close</Link>
+                              <pre>{JSON.stringify(categoryData, null, 4)}</pre>
+                            </div>,
+                            document.body,
+                          );
+                    }
+                    return null;
+                  })()}
                 </Link>
               </h2>
               <div className="videos flex flex-row gap-2 overflow-scroll py-4 px-4">
                 {(videos ?? []).map((v) => {
-                  return <VideoCard value={v} key={v.id} />;
+                  return (
+                    <div key={v.id}>
+                      <VideoCard value={v} />
+                      {(() => {
+                        if (videoData && videoData.originalVideo?.id === v.id) {
+                          return createPortal(
+                            <div
+                              style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                zIndex: 1000,
+                                backgroundColor: 'green',
+                              }}
+                            >
+                              <Link href="/">close</Link>
+                              <pre>{JSON.stringify(videoData, null, 4)}</pre>
+                            </div>,
+                            document.body,
+                          );
+                        }
+
+                        return null;
+                      })()}
+                    </div>
+                  );
                 })}
               </div>
             </section>
