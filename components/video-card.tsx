@@ -5,6 +5,7 @@ import { type FC } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import classnames from 'classnames';
+import { useRef, useLayoutEffect } from 'react';
 
 const VideoCard: FC<{
   value: Pick<OriginalVideo, 'id' | 'landscapeThumbnail' | 'title'> & { duration: Pick<OriginalVideo["duration"], "seconds"| "minutes">};
@@ -12,12 +13,27 @@ const VideoCard: FC<{
   const width = 320;
   const height = 180;
   const gradientHeight = 600;
+  const ref = useRef<HTMLElement>(null);
+
+  TODO: Use this code ot animate opening the detail
+  useLayoutEffect(() => {
+    const iid = setInterval(() => {
+    if (ref.current && '2331' === props.value.id) {
+    console.log(id, ref.current.getBoundingClientRect());
+    }
+    }, 1000);
+
+    return () => {
+      clearInterval(iid);
+    };
+  })
   const {
     value: { id, landscapeThumbnail, title, duration },
   } = props;
   return (
     <Link
       key={id}
+      ref={ref}
       style={{width, height, minWidth: width}}
       className={classnames(
         'video',
