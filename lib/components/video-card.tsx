@@ -38,25 +38,11 @@ const VideoCard: FC<{
     right: 0,
     bottom: 0,
   });
-  //const dimensions = useDimensions(ref);
   const [previousActive, setPreviousActive] = useState<ActiveVideo | null>(
     null,
   );
 
   useEffect(() => {
-    if (ref.current) {
-      const { top, left, right, bottom } = ref.current.getBoundingClientRect();
-
-      if (
-        top !== dimensions.top ||
-        bottom !== dimensions.bottom ||
-        left !== dimensions.left ||
-        right !== dimensions.right
-      ) {
-        setDimensions({ top, left, right, bottom });
-      }
-    }
-
     if (active && previousActive !== active) {
       setTimeout(() => {
         setPreviousActive(active);
@@ -66,7 +52,7 @@ const VideoCard: FC<{
         setPreviousActive(null);
       }, 400);
     }
-  }, [previousActive, setPreviousActive, active, dimensions]);
+  }, [active]);
 
   const cardFragment = (
     <div
@@ -79,11 +65,12 @@ const VideoCard: FC<{
         'block',
         'overflow-hidden',
         'shadow-lg/30',
+        'dark:shadow-white/50',
         ...(!active && !previousActive
           ? [
               'hover:scale-110',
               'hover:z-1',
-              'active:scale-110',
+              'active:scale-105',
               'active:z-1',
               'focus:scale-110',
               'focus:z-1',
@@ -92,7 +79,11 @@ const VideoCard: FC<{
         'transition-all',
         'group',
       )}
-      style={{ height, width }}
+      style={{
+        height,
+        width,
+        ...(active ? { width: width * 2, height: height * 2 } : {}),
+      }}
     >
       <div
         className={classnames(
@@ -120,7 +111,6 @@ const VideoCard: FC<{
           'transition-all',
         )}
       >
-        <div>{/*title*/}</div>
         <div className="flex-1" style={{ flex: 1 }}></div>
         <div className="flex flex-row gap-[2px]  bg-black/40 rounded-full px-2 backdrop-blur-lg">
           <Image
@@ -163,8 +153,7 @@ const VideoCard: FC<{
       <Image
         src={landscapeThumbnail ?? ''}
         className="object-cover object-contain absolute top-0 left-0 right-0 bottom-0 z-0 pointer-events-none"
-        width={width}
-        height={height}
+        layout="fill"
         alt={title ?? ''}
       />
     </div>
@@ -173,17 +162,42 @@ const VideoCard: FC<{
   const dialogFragment = (() => {
     if (active || previousActive) {
       const a = active || previousActive;
-      debugger;
-      if (!a) return;
+
+      if (!a) return null;
+
       return (
         <Portal>
+          <div
+            className={classnames(
+              'absolute',
+              'top-0',
+              'left-0',
+              'right-0',
+              'bottom-0',
+
+              ...(previousActive === active
+                ? ['backdrop-blur-sm', 'bg-black/50']
+                : ['backdrop-blur-none', 'bg-transparent']),
+              'duration-500',
+              'transition-all',
+            )}
+          ></div>
           <div
             className={[
               `video-id-${a.id}`,
               `category-id-${category.id}`,
               'transition-all',
+              'ease-in-out',
+              'overflow-hidden',
+              'flex',
+              'flex-row',
+              'items-center',
+              'justify-center',
             ].join(' ')}
             style={{
+              minHeight: height,
+              minWidth: width,
+              //maxHeight: '100vh',
               position: 'absolute',
               ...(() => {
                 if (active !== previousActive) {
@@ -199,13 +213,121 @@ const VideoCard: FC<{
               })(),
               transition: 'all .5s ease',
               zIndex: 1000,
-              backgroundColor: 'green',
             }}
           >
-            {cardFragment}
-            <button onClick={onClose}>close</button>
-            <pre>{JSON.stringify(a.video, null, 4)}</pre>
-            <pre>{JSON.stringify(a.comments, null, 4)}</pre>
+            <div
+              className={classnames(
+                'bg-white dark:bg-gray-800 rounded-lg overflow-hidden flex flex-row',
+              )}
+              style={{ maxWidth: 800 }}
+            >
+              <div className="flex flex-col relative">
+                <div
+                  style={{
+                    width,
+                    height,
+                    ...(active ? { width: width * 2, height: height * 2 } : {}),
+                  }}
+                >
+                  {cardFragment}
+                </div>
+                <div
+                  className="px-4"
+                  style={{
+                    height: 0,
+                    width: 0,
+                    overflow: 'auto',
+                    transition: 'all .5s ease',
+                    ...(active === previousActive
+                      ? { height: 300, width: width * 2, minWidth: width * 2 }
+                      : {}),
+                  }}
+                >
+                  <button
+                    onClick={onClose}
+                    style={{ position: 'absolute', top: 10, left: 10 }}
+                  >
+                    <Image
+                      width={32}
+                      height={32}
+                      src="/xmark.svg"
+                      alt={'閉じる'}
+                      className="dark:invert drop-shadow-sm"
+                    />
+                  </button>
+                  <dl>
+                    <dt className="text-sm font-bold mt-4">Title</dt>
+                    <dd className="mb-4 text-md">{a.video?.title}</dd>
+                    <dt className="text-sm font-bold mt-4">Description</dt>
+                    <dd className="mb-4 text-md">{a.video?.description}</dd>
+                    <div className="flex flex-row gap-4">
+                      <div>
+                        <dt className="text-sm font-bold">Likes</dt>
+                        <dd className="mb-4 text-md flex flex-row gap-1">
+                          <Image
+                            src="/thumb-up.svg"
+                            width="16"
+                            height="16"
+                            alt="時間"
+                            className="invert drop-shadow-sm"
+                          ></Image>
+                          {a.video?.likeNum}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-sm font-bold">Duration</dt>
+                        <dd className="mb-4 text-md flex flex-row gap-1">
+                          <Image
+                            src="/clock.svg"
+                            width="16"
+                            height="16"
+                            alt="時間"
+                            className="invert drop-shadow-sm"
+                          ></Image>
+                          {a.video?.duration.minutes}:
+                          {String(a.video?.duration.seconds).padStart(2, '0')}
+                        </dd>
+                      </div>
+                    </div>
+                  </dl>
+                        <div className="text-sm font-bold">Comments</div>
+                  <ul>
+                    {(a.comments?.edges ?? []).map((e) => {
+                      if (e.node) {
+                        return (
+                          <div key={e.node.id} className={classnames('m-4')}>
+                            <div className="flex flex-row items-center gap-4">
+                            <div className="font-bold">@{e.node.user?.name}</div>
+                              <div className="text-sm">
+                                {new Date(
+                                  e.node.createdAt,
+                                ).toLocaleDateString()}{' '}
+                                {new Date(
+                                  e.node.createdAt,
+                                ).toLocaleTimeString()}
+                              </div>
+                            </div>
+                            <div>{e.node.contents}</div>
+
+                        <div className="mb-4 text-md flex flex-row gap-1">
+                          <Image
+                            src="/thumb-up.svg"
+                            width="16"
+                            height="16"
+                            alt="時間"
+                            className="invert drop-shadow-sm"
+                          ></Image>
+                          {e.node.likeNum}
+                        </div>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })}
+                  </ul>
+                </div>
+              </div>
+            </div>
           </div>
         </Portal>
       );
@@ -219,11 +341,34 @@ const VideoCard: FC<{
       <Link
         key={id}
         ref={ref}
-        style={{ width, height, minWidth: width, visibility: dialogFragment ? 'hidden' : 'visible' }}
-        className={classnames('video')}
+        style={{
+          width,
+          height,
+          minWidth: width,
+          visibility: dialogFragment ? 'hidden' : 'visible',
+        }}
         href={`/categories/${category.id}/videos/${id}`}
       >
+        <div
+          style={{ width, height, minWidth: width }}
+          onClick={() => {
+            if (ref.current) {
+              const { top, left, right, bottom } =
+                ref.current.getBoundingClientRect();
+
+              if (
+                top !== dimensions.top ||
+                bottom !== dimensions.bottom ||
+                left !== dimensions.left ||
+                right !== dimensions.right
+              ) {
+                setDimensions({ top, left, right, bottom });
+              }
+            }
+          }}
+        >
           {cardFragment}
+        </div>
       </Link>
     </>
   );

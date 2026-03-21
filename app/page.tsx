@@ -45,7 +45,6 @@ const useState = (props: PageProps): State => {
       };
     }
 
-    debugger;
     if (videoId && categoryId) {
       out.activeVideo = {
         id: videoId,
@@ -55,6 +54,7 @@ const useState = (props: PageProps): State => {
       };
     }
 
+    console.log('new state');
     return out;
   }, [
     homeResponse.data,
@@ -69,9 +69,9 @@ const useState = (props: PageProps): State => {
   return state;
 };
 
-type PageProps = {
+interface PageProps {
   searchParams: Promise<{ videoId?: string[]; categoryId?: string[] }>;
-};
+}
 
 const Page: NextPage<PageProps> = (props) => {
   const router = useRouter();
