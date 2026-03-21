@@ -134,6 +134,7 @@ const VideoCard: FC<{
           <Image
             src="/spinner.svg"
             width="64"
+            loading="eager"
             height="64"
             alt="時間"
             className="invert drop-shadow-sm animate-spin"
