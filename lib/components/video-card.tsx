@@ -52,6 +52,7 @@ const VideoCard: FC<{
         setPreviousActive(null);
       }, 400);
     }
+    // eslint-disable-next-line
   }, [active]);
 
   const cardFragment = (
@@ -82,7 +83,9 @@ const VideoCard: FC<{
       style={{
         height,
         width,
-        ...(active ? { width: width * 2, height: height * 2 } : {}),
+        ...(active === previousActive
+          ? { width: (width * 4) / 3, height: (height * 4) / 3 }
+          : {}),
       }}
     >
       <div
@@ -197,17 +200,18 @@ const VideoCard: FC<{
             style={{
               minHeight: height,
               minWidth: width,
-              //maxHeight: '100vh',
+              transform: 'translate(-50%, -50%)',
               position: 'absolute',
               ...(() => {
                 if (active !== previousActive) {
-                  return dimensions;
+                  return {
+                    left: dimensions.left + width / 2,
+                    top: dimensions.top + height / 2,
+                  };
                 } else {
                   return {
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
+                    top: '50%',
+                    left: '50%',
                   };
                 }
               })(),
@@ -217,44 +221,45 @@ const VideoCard: FC<{
           >
             <div
               className={classnames(
-                'bg-white dark:bg-gray-800 rounded-lg overflow-hidden flex flex-row',
+                'bg-white dark:bg-gray-800 rounded-lg overflow-hidden flex flex-row ',
               )}
-              style={{ maxWidth: 800 }}
             >
               <div className="flex flex-col relative">
-                <div
+                <button
+                  onClick={onClose}
                   style={{
-                    width,
-                    height,
-                    ...(active ? { width: width * 2, height: height * 2 } : {}),
+                    position: 'absolute',
+                    cursor: 'pointer',
+                    top: 10,
+                    left: 10,
+                    zIndex: 10,
                   }}
                 >
-                  {cardFragment}
-                </div>
+                  <Image
+                    width={32}
+                    height={32}
+                    src="/xmark.svg"
+                    alt={'閉じる'}
+                    className="dark:invert drop-shadow-lg/50"
+                  />
+                </button>
+                <div>{cardFragment}</div>
                 <div
-                  className="px-4"
+                  className="px-4 transition-all overflow-auto"
                   style={{
                     height: 0,
                     width: 0,
-                    overflow: 'auto',
-                    transition: 'all .5s ease',
                     ...(active === previousActive
-                      ? { height: 300, width: width * 2, minWidth: width * 2 }
+                      ? {
+                          height: 300,
+                          width: (width * 4) / 3,
+                          minWidth: (width * 4) / 3,
+                          transitionDelay: '300ms',
+                          transitionDuration: '500ms',
+                        }
                       : {}),
                   }}
                 >
-                  <button
-                    onClick={onClose}
-                    style={{ position: 'absolute', top: 10, left: 10 }}
-                  >
-                    <Image
-                      width={32}
-                      height={32}
-                      src="/xmark.svg"
-                      alt={'閉じる'}
-                      className="dark:invert drop-shadow-sm"
-                    />
-                  </button>
                   <dl>
                     <dt className="text-sm font-bold mt-4">Title</dt>
                     <dd className="mb-4 text-md">{a.video?.title}</dd>
@@ -290,42 +295,55 @@ const VideoCard: FC<{
                       </div>
                     </div>
                   </dl>
-                        <div className="text-sm font-bold">Comments</div>
-                  <ul>
-                    {(a.comments?.edges ?? []).map((e) => {
-                      if (e.node) {
-                        return (
-                          <div key={e.node.id} className={classnames('m-4')}>
-                            <div className="flex flex-row items-center gap-4">
-                            <div className="font-bold">@{e.node.user?.name}</div>
-                              <div className="text-sm">
-                                {new Date(
-                                  e.node.createdAt,
-                                ).toLocaleDateString()}{' '}
-                                {new Date(
-                                  e.node.createdAt,
-                                ).toLocaleTimeString()}
-                              </div>
-                            </div>
-                            <div>{e.node.contents}</div>
-
-                        <div className="mb-4 text-md flex flex-row gap-1">
-                          <Image
-                            src="/thumb-up.svg"
-                            width="16"
-                            height="16"
-                            alt="時間"
-                            className="invert drop-shadow-sm"
-                          ></Image>
-                          {e.node.likeNum}
-                        </div>
-                          </div>
-                        );
-                      }
-                      return null;
-                    })}
-                  </ul>
                 </div>
+              </div>
+              <div
+                className="bg-neutral-800/70 flex-1 transition-all"
+                style={{
+                  width: 0,
+                  height: height,
+                  overflow: 'hidden',
+                  ...(active === previousActive
+                    ? { height: 'auto', width: 500, transitionDelay: '300ms', transitionDuration: '500ms' }
+                    : {}),
+                }}
+              >
+                <div style={{minWidth: 500 }} className="p-4">
+                <div className="text-sm font-bold">
+                  Comments
+                </div>
+                <ul>
+                  {(a.comments?.edges ?? []).map((e) => {
+                    if (e.node) {
+                      return (
+                        <div key={e.node.id} className={classnames('m-4')}>
+                          <div className="flex flex-row items-center gap-4">
+                            <div className="font-bold">
+                              @{e.node.user?.name}
+                            </div>
+                            <div className="text-sm">
+                              {new Date(e.node.createdAt).toLocaleDateString()}{' '}
+                              {new Date(e.node.createdAt).toLocaleTimeString()}
+                            </div>
+                          </div>
+                          <div>{e.node.contents}</div>
+
+                          <div className="mb-4 text-md flex flex-row gap-1">
+                            <Image
+                              src="/thumb-up.svg"
+                              width="16"
+                              height="16"
+                              alt="時間"
+                              className="invert drop-shadow-sm"
+                            ></Image>
+                            {e.node.likeNum}
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })}
+                </ul></div>
               </div>
             </div>
           </div>
