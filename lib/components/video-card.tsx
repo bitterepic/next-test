@@ -50,6 +50,7 @@ const VideoCard: FC<{
 
   useEffect(() => {
     syncDimensions();
+    // eslint-disable-next-line
   }, []);
 
   const syncDimensions = () => {
@@ -229,11 +230,9 @@ const VideoCard: FC<{
   );
 
   const dialogFragment = (() => {
-    if (active || previousActive) {
-      const a = active || previousActive;
+    const a = active || previousActive;
 
-      if (!a) return null;
-
+    if ((active || previousActive) && a) {
       return (
         <Portal>
           <div
@@ -270,25 +269,22 @@ const VideoCard: FC<{
               transform: 'translate(-50%, -50%)',
               position: 'absolute',
               ...(() => {
-                console.log({ active, previousActive });
                 if (
                   (active && !previousActive) ||
                   (!active && previousActive)
                 ) {
-                  console.log('original location');
                   return {
                     left: dimensions.left + width / 2,
                     top: dimensions.top + height / 2,
                   };
                 } else {
-                  console.log('center');
                   return {
                     top: '50%',
                     left: '50%',
                   };
                 }
               })(),
-              transition: 'all .5s ease',
+              transition: mounted ? 'all .5s ease' : undefined,
               zIndex: 1000,
             }}
           >
