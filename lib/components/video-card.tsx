@@ -269,7 +269,7 @@ const VideoCard: FC<{
                     height={32}
                     src="/xmark.svg"
                     alt={'閉じる'}
-                    className="dark:invert drop-shadow-lg/50"
+                    className="invert dark:invert drop-shadow-lg/50"
                   />
                 </button>
                 <div>{cardFragment}</div>
@@ -303,7 +303,7 @@ const VideoCard: FC<{
                               width="16"
                               height="16"
                               alt="時間"
-                              className="invert drop-shadow-sm"
+                              className="dark:invert drop-shadow-sm"
                             ></Image>
                             {a.video?.likeNum}
                           </dd>
@@ -315,7 +315,7 @@ const VideoCard: FC<{
                               width="16"
                               height="16"
                               alt="時間"
-                              className="invert drop-shadow-sm"
+                              className="dark:invert drop-shadow-sm"
                             ></Image>
                             {a.video?.duration.minutes}:
                             {String(a.video?.duration.seconds).padStart(2, '0')}
@@ -327,7 +327,7 @@ const VideoCard: FC<{
                 </div>
               </div>
               <div
-                className="bg-neutral-800/70 flex-1 transition-all inset-shadow-sm inset-shadow-black relative z-10000 overflow-auto"
+                className="bg-neutral-800/70 flex-1 transition-all inset-shadow-sm inset-shadow-black relative z-10000 overflow-auto text-white"
                 style={{
                   width: 0,
                   height: height,
