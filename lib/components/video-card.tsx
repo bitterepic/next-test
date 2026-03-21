@@ -1,11 +1,12 @@
 'use client';
 
-import { HomeScreen, ActiveVideo } from '@/lib/types';
-import { type FC, type RefObject } from 'react';
+import { HomeScreen, ActiveVideo, Category } from '@/lib/types';
+import { type FC } from 'react';
+import Portal from '@/lib/components/portal';
 import Image from 'next/image';
 import Link from 'next/link';
 import classnames from 'classnames';
-import { useRef, useLayoutEffect, useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
 
 interface Rect {
   top: number;
@@ -14,17 +15,38 @@ interface Rect {
   bottom: number;
 }
 
-const useDimensions = <T extends RefObject<HTMLElement|null>>(ref: T) : Rect => {
+const VideoCard: FC<{
+  value: Exclude<HomeScreen['videos'], undefined | null>[number];
+  active?: ActiveVideo;
+  category: Category;
+  onClose?: () => void;
+}> = (props) => {
+  const {
+    value: { id, landscapeThumbnail, title, duration },
+    onClose,
+    active,
+    category,
+  } = props;
+  const width = 320;
+  const height = 180;
+  const gradientHeight = 600;
+  const ref = useRef<HTMLAnchorElement>(null);
+
   const [dimensions, setDimensions] = useState<Rect>({
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
   });
+  //const dimensions = useDimensions(ref);
+  const [previousActive, setPreviousActive] = useState<ActiveVideo | null>(
+    null,
+  );
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (ref.current) {
       const { top, left, right, bottom } = ref.current.getBoundingClientRect();
+
       if (
         top !== dimensions.top ||
         bottom !== dimensions.bottom ||
@@ -34,50 +56,18 @@ const useDimensions = <T extends RefObject<HTMLElement|null>>(ref: T) : Rect => 
         setDimensions({ top, left, right, bottom });
       }
     }
-  }, [ref, dimensions, setDimensions]);
 
-  return dimensions;
-};
+    if (active && previousActive !== active) {
+      setTimeout(() => {
+        setPreviousActive(active);
+      }, 100);
+    } else if (!active && previousActive) {
+      setPreviousActive(null);
+    }
+  }, [previousActive, setPreviousActive, active, dimensions]);
 
-const VideoCard: FC<{
-  value: Exclude<HomeScreen['videos'], undefined | null>[number];
-  active?: ActiveVideo;
-  onClose?: () => void;
-}> = (props) => {
-  const width = 320;
-  const height = 180;
-  const gradientHeight = 600;
-  const ref = useRef<HTMLAnchorElement>(null);
-  const dimensions = useDimensions(ref);
-
-  const {
-    value: { id, landscapeThumbnail, title, duration },
-  } = props;
-  return (
-    <Link
-      key={id}
-      ref={ref}
-      style={{ width, height, minWidth: width }}
-      className={classnames(
-        'video',
-        'bg-neutral-100',
-        'relative',
-        'z-0',
-        'rounded-md',
-        'block',
-        'overflow-hidden',
-        'shadow-lg/30',
-        'hover:scale-110',
-        'hover:z-1',
-        'active:scale-110',
-        'active:z-1',
-        'focus:scale-110',
-        'focus:z-1',
-        'transition-all',
-        'group',
-      )}
-      href={`/videos/${id}`}
-    >
+  const cardFragment = (
+    <div className="relative" style={{ height, width }}>
       <div className="info-caption z-2 absolute bottom-0 left-0 right-0 p-1 pointer-events-none flex flex-row align-start justify-start items-start opacity-0 group-hover:opacity-100 group-focus:opacity-100 group-active:opacity-100 transition-all">
         <div>{/*title*/}</div>
         <div className="flex-1" style={{ flex: 1 }}></div>
@@ -122,7 +112,79 @@ const VideoCard: FC<{
         height={height}
         alt={title ?? ''}
       />
-    </Link>
+    </div>
+  );
+
+  const dialogFragment = (() => {
+    if (active) {
+      return (
+        <Portal>
+          <div
+            className={[
+              `video-id-${active.id}`,
+              `category-id-${category.id}`,
+              'transition-all',
+            ].join(' ')}
+            style={{
+              position: 'absolute',
+              ...(() => {
+                if (!previousActive) {
+                  return dimensions;
+                } else {
+                  return {
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                  };
+                }
+              })(),
+              transition: 'all .5s ease',
+              zIndex: 1000,
+              backgroundColor: 'green',
+            }}
+          >
+            {cardFragment}
+            <button onClick={onClose}>close</button>
+            <pre>{JSON.stringify(active.video, null, 4)}</pre>
+            <pre>{JSON.stringify(active.comments, null, 4)}</pre>
+          </div>
+        </Portal>
+      );
+    }
+    return null;
+  })();
+
+  return (
+    <>
+      {dialogFragment}
+      <Link
+        key={id}
+        ref={ref}
+        style={{ width, height, minWidth: width }}
+        className={classnames(
+          'video',
+          'bg-neutral-100',
+          'relative',
+          'z-0',
+          'rounded-md',
+          'block',
+          'overflow-hidden',
+          'shadow-lg/30',
+          'hover:scale-110',
+          'hover:z-1',
+          'active:scale-110',
+          'active:z-1',
+          'focus:scale-110',
+          'focus:z-1',
+          'transition-all',
+          'group',
+        )}
+        href={`/categories/${category.id}/videos/${id}`}
+      >
+        {cardFragment}
+      </Link>
+    </>
   );
 };
 

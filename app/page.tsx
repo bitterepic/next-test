@@ -1,22 +1,19 @@
 'use client';
 
-import { use, useMemo } from 'react';
-import { createPortal } from 'react-dom';
+import { use, useMemo, useRef } from 'react';
 import {
   GetCategoryDocument,
   GetHomeScreensDocument,
   GetOriginalVideoDocument,
   GetVideoCommentsDocument,
 } from '@/lib/graphql/generated/graphql';
-import type {
-  State
-} from '@/lib/types';
+import type { State } from '@/lib/types';
 import { useQuery } from '@apollo/client';
 import type { NextPage } from 'next';
 import VideoCard from '@/lib/components/video-card';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation';
 
 const useState = (props: PageProps): State => {
   const { categoryId: [categoryId = ''] = [], videoId: [videoId = ''] = [] } =
@@ -41,18 +38,20 @@ const useState = (props: PageProps): State => {
       reloading: homeResponse.data ? homeResponse.loading : false,
     };
 
-    if (categoryId) {
+    if (!videoId && categoryId) {
       out.activeCategory = {
         id: categoryId,
         category: categoryResponse.data?.category,
       };
     }
 
-    if (videoId) {
+    debugger;
+    if (videoId && categoryId) {
       out.activeVideo = {
         id: videoId,
         video: videoResponse.data?.originalVideo,
         comments: videoCommentsResponse.data?.videoComments,
+        categoryId,
       };
     }
 
@@ -75,17 +74,16 @@ type PageProps = {
 };
 
 const Page: NextPage<PageProps> = (props) => {
-  const router = useRouter()
+  const router = useRouter();
   const { homeScreens, reloading, activeVideo, activeCategory } =
     useState(props);
+  const firstLoadRef = useRef(true);
 
   if (
-    // Globally Required
     !homeScreens ||
-    // Required for the video detail view
-    (activeVideo?.id && !activeVideo.video) ||
-    // Required for the category view
-    (activeCategory?.id && !activeCategory.category)
+    (firstLoadRef.current &&
+      ((activeVideo && !activeVideo.video) ||
+        (activeCategory && !activeCategory.category)))
   )
     return (
       <div className="flex items-center content-center justify-center absolute left-0 bottom-0 right-0 top-0">
@@ -99,6 +97,8 @@ const Page: NextPage<PageProps> = (props) => {
       </div>
     );
 
+  firstLoadRef.current = false;
+
   return (
     <div className="flex flex-col gap-1 absolute top-0 left-0 right-0 bottom-0 overflow-scroll  dark:bg-gray-1000">
       <h1 className="branding text-[24px] font-bold py-4 px-4">
@@ -108,77 +108,61 @@ const Page: NextPage<PageProps> = (props) => {
       <div>
         {homeScreens.map(({ id, category, videos }) => {
           if (!videos?.length) return null;
+          if (!category) return null;
+
           return (
             <section key={id} className="my-10">
               <h2 className="category text-[16px] font-bold px-4">
                 <Link href={`/categories/${category?.id}`}>
                   {category?.name ?? 'unnamed category'}
                   {(() => {
-                    if (
-                      category?.id === activeCategory?.id &&
-                      activeCategory?.category
-                    ) {
-                      return createPortal(
-                        <div
-                          style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            zIndex: 1000,
-                            backgroundColor: 'green',
-                          }}
-                        >
-                          <Link href="/">close</Link>
-                          <pre>
-                            {JSON.stringify(activeCategory?.category, null, 4)}
-                          </pre>
-                        </div>,
-                        document.body,
-                      );
-                    }
                     return null;
+                    // if (
+                    //   category?.id === activeCategory?.id &&
+                    //   activeCategory?.category
+                    // ) {
+                    //   return createPortal(
+                    //     <div
+                    //       style={{
+                    //         position: 'absolute',
+                    //         top: 0,
+                    //         left: 0,
+                    //         right: 0,
+                    //         bottom: 0,
+                    //         zIndex: 1000,
+                    //         backgroundColor: 'green',
+                    //       }}
+                    //     >
+                    //       <Link href="/">close</Link>
+                    //       <pre>
+                    //         {JSON.stringify(activeCategory?.category, null, 4)}
+                    //       </pre>
+                    //     </div>,
+                    //     document.body,
+                    //   );
+                    // }
+                    // return null;
                   })()}
                 </Link>
               </h2>
               <div className="videos flex flex-row gap-2 overflow-scroll py-10 -my-8 px-4">
                 {(videos ?? []).map((v) => {
-                  const active = activeVideo?.id === v.id ? activeVideo: undefined;
+                  const active =
+                    activeVideo?.id === v.id &&
+                    activeVideo?.categoryId === category?.id
+                      ? activeVideo
+                      : undefined;
 
                   return (
                     <div key={v.id}>
-                      <VideoCard value={v} active={active} onClose={() => {
-                        router.push("/");
-                      }} />
-                      {(() => {
-                        if (
-                          activeVideo?.video &&
-                          activeVideo.id === v.id
-                        ) {
-                          return createPortal(
-                            <div
-                              style={{
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                right: 0,
-                                bottom: 0,
-                                zIndex: 1000,
-                                backgroundColor: 'green',
-                              }}
-                            >
-                              <Link href="/">close</Link>
-                              <pre>
-                                {JSON.stringify(activeVideo?.video, null, 4)}
-                              </pre>
-                            </div>,
-                            document.body,
-                          );
-                        }
-
-                        return null;
-                      })()}
+                      <VideoCard
+                        value={v}
+                        category={category}
+                        active={active}
+                        onClose={() => {
+                          router.push('/');
+                        }}
+                      />
                     </div>
                   );
                 })}

@@ -16,6 +16,7 @@ export interface ActiveVideo {
   // Lazy loaded payloads
   comments?: Comments;
   video?: Video;
+  categoryId: string;
 }
 
 export interface ActiveCategory {
