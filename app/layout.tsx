@@ -26,6 +26,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${font.variable} antialiased`}
+        style={{overflow: 'hidden'}}
       >
         <Providers>{children}</Providers>
       </body>

@@ -57,6 +57,7 @@ const VideoCard: FC<{
 
   const cardFragment = (
     <div
+      title={title ?? undefined}
       className={classnames(
         'relative',
         'bg-neutral-100',
@@ -164,13 +165,7 @@ const VideoCard: FC<{
         )}
         style={{ height: `${gradientHeight}px` }}
       ></div>
-      <Image
-        src={landscapeThumbnail ?? ''}
-        className="object-cover object-contain absolute top-0 left-0 right-0 bottom-0 z-0 pointer-events-none"
-        loading="eager"
-        layout="fill"
-        alt={title ?? ''}
-      />
+      <div className={classnames('absolute', 'top-0', 'left-0', 'right-0', 'bottom-0', 'z-0', 'pointer-events-none', 'bg-contain')} style={{ 'backgroundImage': `url(${JSON.stringify(landscapeThumbnail ?? "")})`}}></div>
     </div>
   );
 
@@ -234,7 +229,7 @@ const VideoCard: FC<{
           >
             <div
               className={classnames(
-                'bg-white dark:bg-gray-800 rounded-lg overflow-hidden flex flex-row ',
+                'bg-white dark:bg-gray-800 rounded-lg overflow-hidden flex flex-row',
               )}
             >
               <div className="flex flex-col relative">
@@ -307,7 +302,7 @@ const VideoCard: FC<{
                 </div>
               </div>
               <div
-                className="bg-neutral-800/70 flex-1 transition-all"
+                className="bg-neutral-800/70 flex-1 transition-all inset-shadow-sm inset-shadow-black relative z-10000"
                 style={{
                   width: 0,
                   height: height,
@@ -323,7 +318,7 @@ const VideoCard: FC<{
                 }}
               >
                 <div style={{ minWidth: 500 }} className="p-4">
-                  <div className="text-sm font-bold">Comments</div>
+                  <div className="text-sm font-bold">コメント</div>
                   <ul>
                     {(a.comments?.edges ?? []).map((e) => {
                       if (e.node) {
