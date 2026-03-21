@@ -15,6 +15,21 @@ interface Rect {
   bottom: number;
 }
 
+const useMounted = (onMounted: () => void) => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    if (!mounted) {
+      setTimeout(() => {
+        setMounted(true);
+        onMounted();
+      }, 1000);
+    }
+  }, [mounted, setMounted, onMounted]);
+
+  return mounted;
+};
+
 const VideoCard: FC<{
   value: Exclude<HomeScreen['videos'], undefined | null>[number];
   active?: ActiveVideo;
@@ -27,10 +42,30 @@ const VideoCard: FC<{
     active,
     category,
   } = props;
+  const mounted = useMounted(() => syncDimensions());
   const width = 320;
   const height = 180;
   const gradientHeight = 600;
   const ref = useRef<HTMLAnchorElement>(null);
+
+  useEffect(() => {
+    syncDimensions();
+  }, []);
+
+  const syncDimensions = () => {
+    if (ref.current) {
+      const { top, left, right, bottom } = ref.current.getBoundingClientRect();
+
+      if (
+        top !== dimensions.top ||
+        bottom !== dimensions.bottom ||
+        left !== dimensions.left ||
+        right !== dimensions.right
+      ) {
+        setDimensions({ top, left, right, bottom });
+      }
+    }
+  };
 
   const [dimensions, setDimensions] = useState<Rect>({
     top: 0,
@@ -43,14 +78,22 @@ const VideoCard: FC<{
   );
 
   useEffect(() => {
-    if (active && previousActive !== active) {
-      setTimeout(() => {
+    if (mounted) {
+      if (active && previousActive !== active) {
+        setTimeout(() => {
+          setPreviousActive(active);
+        }, 100);
+      } else if (!active && previousActive) {
+        setTimeout(() => {
+          setPreviousActive(null);
+        }, 400);
+      }
+    } else {
+      if (active && previousActive !== active) {
         setPreviousActive(active);
-      }, 100);
-    } else if (!active && previousActive) {
-      setTimeout(() => {
+      } else if (!active && previousActive) {
         setPreviousActive(null);
-      }, 400);
+      }
     }
     // eslint-disable-next-line
   }, [active]);
@@ -78,7 +121,7 @@ const VideoCard: FC<{
               'rounded-md',
             ]
           : ['rounded-none']),
-        'transition-all',
+        ...(mounted ? ['transition-all'] : []),
         'group',
       )}
       style={{
@@ -112,7 +155,8 @@ const VideoCard: FC<{
                 'group-active:opacity-100',
               ]
             : []),
-          'transition-all',
+
+          ...(mounted ? ['transition-all'] : []),
         )}
       >
         <div className="flex-1" style={{ flex: 1 }}></div>
@@ -204,7 +248,7 @@ const VideoCard: FC<{
                 ? ['backdrop-blur-sm', 'bg-black/50']
                 : ['backdrop-blur-none', 'bg-transparent']),
               'duration-500',
-              'transition-all',
+              ...(mounted ? ['transition-all'] : ['transition-none']),
             )}
             onClick={onClose}
           ></div>
@@ -212,7 +256,7 @@ const VideoCard: FC<{
             className={[
               `video-id-${a.id}`,
               `category-id-${category.id}`,
-              'transition-all',
+              ...(mounted ? ['transition-all'] : ['transition-none']),
               'ease-in-out',
               'overflow-hidden',
               'flex',
@@ -274,7 +318,11 @@ const VideoCard: FC<{
                 </button>
                 <div>{cardFragment}</div>
                 <div
-                  className="transition-height overflow-auto relative"
+                  className={classnames(
+                    'overflow-auto',
+                    'relative',
+                    ...(mounted ? ['transition-height'] : ['transition-none']),
+                  )}
                   style={{
                     height: 0,
                     width: 0,
@@ -327,7 +375,17 @@ const VideoCard: FC<{
                 </div>
               </div>
               <div
-                className="bg-neutral-800/70 flex-1 transition-all inset-shadow-sm inset-shadow-black relative z-10000 overflow-auto text-white"
+                className={classnames(
+                  'bg-neutral-800/70',
+                  'flex-1',
+                  ...(mounted ? ['transition-height'] : ['transition-none']),
+                  'inset-shadow-sm',
+                  'inset-shadow-black',
+                  'relative',
+                  'z-10000',
+                  'overflow-auto',
+                  'text-white',
+                )}
                 style={{
                   width: 0,
                   height: height,
@@ -403,26 +461,14 @@ const VideoCard: FC<{
           width,
           height,
           minWidth: width,
-          visibility: dialogFragment ? 'hidden' : 'visible',
+          opacity: dialogFragment ? 0 : 1,
         }}
         href={`/categories/${category.id}/videos/${id}`}
       >
         <div
           style={{ width, height, minWidth: width }}
           onClick={() => {
-            if (ref.current) {
-              const { top, left, right, bottom } =
-                ref.current.getBoundingClientRect();
-
-              if (
-                top !== dimensions.top ||
-                bottom !== dimensions.bottom ||
-                left !== dimensions.left ||
-                right !== dimensions.right
-              ) {
-                setDimensions({ top, left, right, bottom });
-              }
-            }
+            syncDimensions();
           }}
         >
           {cardFragment}
