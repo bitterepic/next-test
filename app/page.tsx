@@ -54,7 +54,6 @@ const useState = (props: PageProps): State => {
       };
     }
 
-    console.log('new state');
     return out;
   }, [
     homeResponse.data,

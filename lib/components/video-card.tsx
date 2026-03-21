@@ -166,7 +166,21 @@ const VideoCard: FC<{
         )}
         style={{ height: `${gradientHeight}px` }}
       ></div>
-      <div className={classnames('absolute', 'top-0', 'left-0', 'right-0', 'bottom-0', 'z-0', 'pointer-events-none', 'bg-contain')} style={{ 'backgroundImage': `url(${JSON.stringify(landscapeThumbnail ?? "")})`}}></div>
+      <div
+        className={classnames(
+          'absolute',
+          'top-0',
+          'left-0',
+          'right-0',
+          'bottom-0',
+          'z-0',
+          'pointer-events-none',
+          'bg-contain',
+        )}
+        style={{
+          backgroundImage: `url(${JSON.stringify(landscapeThumbnail ?? '')})`,
+        }}
+      ></div>
     </div>
   );
 
@@ -212,12 +226,18 @@ const VideoCard: FC<{
               transform: 'translate(-50%, -50%)',
               position: 'absolute',
               ...(() => {
-                if (active !== previousActive) {
+                console.log({ active, previousActive });
+                if (
+                  (active && !previousActive) ||
+                  (!active && previousActive)
+                ) {
+                  console.log('original location');
                   return {
                     left: dimensions.left + width / 2,
                     top: dimensions.top + height / 2,
                   };
                 } else {
+                  console.log('center');
                   return {
                     top: '50%',
                     left: '50%',
@@ -254,13 +274,13 @@ const VideoCard: FC<{
                 </button>
                 <div>{cardFragment}</div>
                 <div
-                  className="px-4 transition-all overflow-auto"
+                  className="transition-height overflow-auto relative"
                   style={{
                     height: 0,
                     width: 0,
-                    ...(active === previousActive
+                    ...(active && active === previousActive
                       ? {
-                          height: 300,
+                          height: 250,
                           width: (width * 4) / 3,
                           minWidth: (width * 4) / 3,
                           transitionDelay: '300ms',
@@ -269,41 +289,45 @@ const VideoCard: FC<{
                       : {}),
                   }}
                 >
-                  <dl>
-                    <dd className="my-4 text-xl font-bold">{a.video?.title}</dd>
-                    <dd className="mb-4 text-md">{a.video?.description}</dd>
-                    <div className="flex flex-row gap-4">
-                      <div>
-                        <dd className="mb-4 text-md flex flex-row gap-1">
-                          <Image
-                            src="/thumb-up.svg"
-                            width="16"
-                            height="16"
-                            alt="時間"
-                            className="invert drop-shadow-sm"
-                          ></Image>
-                          {a.video?.likeNum}
-                        </dd>
+                  <div className="absolute top-0 left-0 right-0 px-4">
+                    <dl>
+                      <dd className="my-4 text-xl font-bold">
+                        {a.video?.title}
+                      </dd>
+                      <dd className="mb-4 text-md">{a.video?.description}</dd>
+                      <div className="flex flex-row gap-4">
+                        <div>
+                          <dd className="mb-4 text-md flex flex-row gap-1">
+                            <Image
+                              src="/thumb-up.svg"
+                              width="16"
+                              height="16"
+                              alt="時間"
+                              className="invert drop-shadow-sm"
+                            ></Image>
+                            {a.video?.likeNum}
+                          </dd>
+                        </div>
+                        <div>
+                          <dd className="mb-4 text-md flex flex-row gap-1">
+                            <Image
+                              src="/clock.svg"
+                              width="16"
+                              height="16"
+                              alt="時間"
+                              className="invert drop-shadow-sm"
+                            ></Image>
+                            {a.video?.duration.minutes}:
+                            {String(a.video?.duration.seconds).padStart(2, '0')}
+                          </dd>
+                        </div>
                       </div>
-                      <div>
-                        <dd className="mb-4 text-md flex flex-row gap-1">
-                          <Image
-                            src="/clock.svg"
-                            width="16"
-                            height="16"
-                            alt="時間"
-                            className="invert drop-shadow-sm"
-                          ></Image>
-                          {a.video?.duration.minutes}:
-                          {String(a.video?.duration.seconds).padStart(2, '0')}
-                        </dd>
-                      </div>
-                    </div>
-                  </dl>
+                    </dl>
+                  </div>
                 </div>
               </div>
               <div
-                className="bg-neutral-800/70 flex-1 transition-all inset-shadow-sm inset-shadow-black relative z-10000"
+                className="bg-neutral-800/70 flex-1 transition-all inset-shadow-sm inset-shadow-black relative z-10000 overflow-auto"
                 style={{
                   width: 0,
                   height: height,
@@ -318,7 +342,10 @@ const VideoCard: FC<{
                     : {}),
                 }}
               >
-                <div style={{ minWidth: 500 }} className="p-4">
+                <div
+                  style={{ minWidth: 500 }}
+                  className="p-4 absolute top-0 right-0 bottom-0 overflow-auto"
+                >
                   <div className="text-sm font-bold">コメント</div>
                   <ul>
                     {(a.comments?.edges ?? []).map((e) => {
