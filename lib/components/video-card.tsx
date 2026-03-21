@@ -62,7 +62,6 @@ const VideoCard: FC<{
         'bg-neutral-100',
         'relative',
         'z-0',
-        'rounded-md',
         'block',
         'overflow-hidden',
         'shadow-lg/30',
@@ -75,8 +74,9 @@ const VideoCard: FC<{
               'active:z-1',
               'focus:scale-110',
               'focus:z-1',
+              'rounded-md',
             ]
-          : []),
+          : ['rounded-none']),
         'transition-all',
         'group',
       )}
@@ -128,6 +128,17 @@ const VideoCard: FC<{
           </div>
         </div>
       </div>
+      {active && active !== previousActive ? (
+        <div className="z-100 absolute top-0 left-0 right-0 bottom-0 flex justify-center items-center bg-black/20">
+          <Image
+            src="/spinner.svg"
+            width="64"
+            height="64"
+            alt="時間"
+            className="invert drop-shadow-sm animate-spin"
+          ></Image>
+        </div>
+      ) : null}
       <div
         className={classnames(
           'gradient',
@@ -156,6 +167,7 @@ const VideoCard: FC<{
       <Image
         src={landscapeThumbnail ?? ''}
         className="object-cover object-contain absolute top-0 left-0 right-0 bottom-0 z-0 pointer-events-none"
+        loading="eager"
         layout="fill"
         alt={title ?? ''}
       />
@@ -184,6 +196,7 @@ const VideoCard: FC<{
               'duration-500',
               'transition-all',
             )}
+            onClick={onClose}
           ></div>
           <div
             className={[
@@ -261,13 +274,10 @@ const VideoCard: FC<{
                   }}
                 >
                   <dl>
-                    <dt className="text-sm font-bold mt-4">Title</dt>
-                    <dd className="mb-4 text-md">{a.video?.title}</dd>
-                    <dt className="text-sm font-bold mt-4">Description</dt>
+                    <dd className="my-4 text-xl font-bold">{a.video?.title}</dd>
                     <dd className="mb-4 text-md">{a.video?.description}</dd>
                     <div className="flex flex-row gap-4">
                       <div>
-                        <dt className="text-sm font-bold">Likes</dt>
                         <dd className="mb-4 text-md flex flex-row gap-1">
                           <Image
                             src="/thumb-up.svg"
@@ -280,7 +290,6 @@ const VideoCard: FC<{
                         </dd>
                       </div>
                       <div>
-                        <dt className="text-sm font-bold">Duration</dt>
                         <dd className="mb-4 text-md flex flex-row gap-1">
                           <Image
                             src="/clock.svg"
@@ -304,46 +313,54 @@ const VideoCard: FC<{
                   height: height,
                   overflow: 'hidden',
                   ...(active === previousActive
-                    ? { height: 'auto', width: 500, transitionDelay: '300ms', transitionDuration: '500ms' }
+                    ? {
+                        height: 'auto',
+                        width: 500,
+                        transitionDelay: '300ms',
+                        transitionDuration: '500ms',
+                      }
                     : {}),
                 }}
               >
-                <div style={{minWidth: 500 }} className="p-4">
-                <div className="text-sm font-bold">
-                  Comments
-                </div>
-                <ul>
-                  {(a.comments?.edges ?? []).map((e) => {
-                    if (e.node) {
-                      return (
-                        <div key={e.node.id} className={classnames('m-4')}>
-                          <div className="flex flex-row items-center gap-4">
-                            <div className="font-bold">
-                              @{e.node.user?.name}
+                <div style={{ minWidth: 500 }} className="p-4">
+                  <div className="text-sm font-bold">Comments</div>
+                  <ul>
+                    {(a.comments?.edges ?? []).map((e) => {
+                      if (e.node) {
+                        return (
+                          <div key={e.node.id} className={classnames('m-4')}>
+                            <div className="flex flex-row items-center gap-4">
+                              <div className="font-bold">
+                                @{e.node.user?.name}
+                              </div>
+                              <div className="text-xs opacity-50 flex items-center justify-center">
+                                {new Date(
+                                  e.node.createdAt,
+                                ).toLocaleDateString()}{' '}
+                                {new Date(
+                                  e.node.createdAt,
+                                ).toLocaleTimeString()}
+                              </div>
                             </div>
-                            <div className="text-sm">
-                              {new Date(e.node.createdAt).toLocaleDateString()}{' '}
-                              {new Date(e.node.createdAt).toLocaleTimeString()}
-                            </div>
-                          </div>
-                          <div>{e.node.contents}</div>
+                            <div>{e.node.contents}</div>
 
-                          <div className="mb-4 text-md flex flex-row gap-1">
-                            <Image
-                              src="/thumb-up.svg"
-                              width="16"
-                              height="16"
-                              alt="時間"
-                              className="invert drop-shadow-sm"
-                            ></Image>
-                            {e.node.likeNum}
+                            <div className="mb-4 text-md flex flex-row gap-1">
+                              <Image
+                                src="/thumb-up.svg"
+                                width="16"
+                                height="16"
+                                alt="時間"
+                                className="invert drop-shadow-sm"
+                              ></Image>
+                              {e.node.likeNum}
+                            </div>
                           </div>
-                        </div>
-                      );
-                    }
-                    return null;
-                  })}
-                </ul></div>
+                        );
+                      }
+                      return null;
+                    })}
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
