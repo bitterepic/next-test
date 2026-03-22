@@ -25,7 +25,7 @@ interface State {
   activeCategory?: ActiveCategory;
 }
 
-const useParameterData = (props: PageProps) => {
+const useParameterData = (props: ContentProps) => {
   const { categoryVideoId: [categoryVideoId = ''] = [] } = use(
     props.searchParams,
   );
@@ -39,7 +39,7 @@ const useParameterData = (props: PageProps) => {
  * @param props - The page props
  * @returns the constructed state
  */
-const useState = (props: PageProps): State => {
+const useState = (props: ContentProps): State => {
   const { categoryId, videoId } = useParameterData(props);
   const homeResponse = useQuery(GetHomeScreensDocument);
   const videoResponse = useQuery(GetOriginalVideoDocument, {
@@ -91,7 +91,7 @@ const useState = (props: PageProps): State => {
   return state;
 };
 
-export interface PageProps {
+export interface ContentProps {
   searchParams: Promise<{ categoryVideoId?: string[] }>;
 }
 
@@ -99,7 +99,7 @@ export interface PageProps {
  * Page used for showing a list of user categories, as well as an open video as an overlay. 
  * @param props - The page props
  */
-const Page: NextPage<PageProps> = (props) => {
+const Page: NextPage<ContentProps> = (props) => {
   const router = useRouter();
   const { homeScreens, reloading, activeVideo, activeCategory } =
     useState(props);

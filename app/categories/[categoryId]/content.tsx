@@ -29,7 +29,7 @@ interface State {
  * @param props - The page props
  * @returns the constructed state
  */
-const useState = (props: PageProps): State => {
+const useState = (props: ContentProps): State => {
   const { videoId: videoId = '' } = use(props.searchParams);
   const { categoryId = '' } = use(props.params);
   const videoResponse = useQuery(GetOriginalVideoDocument, {
@@ -78,7 +78,7 @@ const useState = (props: PageProps): State => {
   return state;
 };
 
-export interface PageProps {
+export interface ContentProps {
   searchParams: Promise<{ videoId?: string }>;
   params: Promise<{ categoryId?: string }>;
 }
@@ -87,7 +87,7 @@ export interface PageProps {
  * Page used for showing a single category, as well as an open video as an overlay. 
  * @param props - The page props
  */
-const Page: NextPage<PageProps> = (props) => {
+const Page: NextPage<ContentProps> = (props) => {
   const router = useRouter();
   const { reloading, activeVideo, activeCategory } = useState(props);
   const firstLoadRef = useRef(true);

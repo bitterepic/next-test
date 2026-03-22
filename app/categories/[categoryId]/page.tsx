@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 import { GetCategoryDocument, GetOriginalVideoDocument } from '@/lib/graphql/generated/graphql';
-import Content, { type PageProps } from './content';
+import Content, { type ContentProps } from './content';
 import { client } from '@/lib/apolloClient';
 
 export async function generateMetadata({
   searchParams,
   params,
-}: PageProps): Promise<Metadata> {
+}: ContentProps): Promise<Metadata> {
   const { videoId: videoId = '' } = await searchParams;
   const { categoryId = '' } = await params;
 
@@ -43,7 +43,7 @@ import type { NextPage } from 'next';
  * Page used for showing a single category, as well as an open video as an overlay.
  * @param props - The page props
  */
-const Page: NextPage<PageProps> = (props) => {
+const Page: NextPage<ContentProps> = (props) => {
   return <Content {...props} />;
 };
 
