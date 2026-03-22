@@ -4,7 +4,7 @@ import type { FC, ReactNode } from 'react';
 
 const Header: FC<{ children: ReactNode }> = ({ children }) => {
   return (
-    <div className="flex flex-row items-center gap-4 py-4 px-4 justify-start">
+    <div className="flex flex-row items-center gap-4 pb-4 pt-8 px-4 justify-start">
       <h1 className="branding text-[24px] font-bold align-middle flex flex-row items-center justify-center">
         <Link href="/" className="hover:underline">
           <Image
