@@ -14,12 +14,20 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
+/**
+ * The internal state of the page
+ */
 interface State {
   reloading: boolean;
   activeVideo?: ActiveVideo;
   activeCategory?: ActiveCategory;
 }
 
+/**
+ * Organizes the input from the network requests into the internal state of the page.
+ * @param props - The page props
+ * @returns the constructed state
+ */
 const useState = (props: PageProps): State => {
   const { videoId: videoId = '' } = use(props.searchParams);
   const { categoryId = '' } = use(props.params);
@@ -75,6 +83,10 @@ interface PageProps {
   params: Promise<{ categoryId?: string }>;
 }
 
+/**
+ * Page used for showing a single category, as well as an open video as an overlay. 
+ * @param props - The page props
+ */
 const Page: NextPage<PageProps> = (props) => {
   const router = useRouter();
   const { reloading, activeVideo, activeCategory } = useState(props);
@@ -84,25 +96,27 @@ const Page: NextPage<PageProps> = (props) => {
     !activeCategory ||
     (firstLoadRef.current && activeVideo && !activeVideo.video)
   )
-  return (
-    <div className="flex items-center content-center justify-center absolute left-0 bottom-0 right-0 top-0">
-      <Image
-        src="/spinner.svg"
-        loading="eager"
-        className="dark:invert animate-spin"
-        width={64}
-        height={64}
-        alt="Loading..."
-      />
-    </div>
-  );
+    return (
+      <div className="flex items-center content-center justify-center absolute left-0 bottom-0 right-0 top-0">
+        <Image
+          src="/spinner.svg"
+          loading="eager"
+          className="dark:invert animate-spin"
+          width={64}
+          height={64}
+          alt="Loading..."
+        />
+      </div>
+    );
 
   firstLoadRef.current = false;
 
   return (
     <div className="flex flex-col gap-1 absolute top-0 left-0 right-0 bottom-0 overflow-scroll  dark:bg-gray-1000 transform-gpu pl-8 ">
       <h1 className="branding text-[24px] font-bold py-4 px-4">
-        <Link href="/" className="hover:underline">Samansa</Link>
+        <Link href="/" className="hover:underline">
+          Samansa
+        </Link>
       </h1>
       {reloading ? <div>Reloading list...</div> : null}
       <div>
@@ -115,7 +129,8 @@ const Page: NextPage<PageProps> = (props) => {
           return (
             <section key={id} className="my-10">
               <h2 className="category text-[16px] font-bold px-4">
-                  {category?.name ?? 'unnamed category'} <span className="text-lg font-bold opacity-0">&gt;</span>
+                {category?.name ?? 'unnamed category'}{' '}
+                <span className="text-lg font-bold opacity-0">&gt;</span>
               </h2>
               <div className="videos flex flex-row flex-wrap gap-2 overflow-scroll py-10 -my-8 px-4">
                 {(videos ?? []).map((v) => {

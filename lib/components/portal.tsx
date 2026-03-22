@@ -12,6 +12,10 @@ interface Pair {
   element: HTMLDivElement;
 }
 
+/**
+ * Component for handling adding a portal to the root body element.
+ * @param props.children - the children to render in the portal.
+ */
 const Portal: FC<PortalProps> = ({ children }) => {
   const rootRef = useRef<Pair | null>(null);
 

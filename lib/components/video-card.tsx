@@ -15,6 +15,10 @@ interface Rect {
   bottom: number;
 }
 
+/**
+ * Helper for returning true after a component is mounted.  Useful for
+ * disabling transitions on initial page load.
+ */
 const useMounted = (onMounted: () => void) => {
   const [mounted, setMounted] = useState(false);
 
@@ -30,6 +34,13 @@ const useMounted = (onMounted: () => void) => {
   return mounted;
 };
 
+/**
+ * A component for rendering a video card.  It also includes the functionality to show a detail view.
+ * @param props.value - The configuration for the display of the card 
+ * @param props.href - The link url for when the card it clicked.
+ * @param props.active - The modal shown when the card is open.
+ * @param props.category - The category containing the video
+ */
 const VideoCard: FC<{
   value: Exclude<HomeScreen['videos'], undefined | null>[number];
   href: string;

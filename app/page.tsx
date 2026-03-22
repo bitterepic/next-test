@@ -14,6 +14,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
+/**
+ * The state for the page.
+ */
 interface State {
   homeScreens: HomeScreen[];
   reloading: boolean;
@@ -21,6 +24,11 @@ interface State {
   activeCategory?: ActiveCategory;
 }
 
+/**
+ * Organizes the input from the network requests into the internal state of the page.
+ * @param props - The page props
+ * @returns the constructed state
+ */
 const useState = (props: PageProps): State => {
   const { categoryVideoId: [categoryVideoId = ''] = [] } = use(
     props.searchParams,
@@ -81,6 +89,10 @@ interface PageProps {
   searchParams: Promise<{ categoryVideoId?: string[] }>;
 }
 
+/**
+ * Page used for showing a list of user categories, as well as an open video as an overlay. 
+ * @param props - The page props
+ */
 const Page: NextPage<PageProps> = (props) => {
   const router = useRouter();
   const { homeScreens, reloading, activeVideo, activeCategory } =
@@ -112,7 +124,9 @@ const Page: NextPage<PageProps> = (props) => {
     <div className="flex flex-col gap-1 absolute top-0 left-0 right-0 bottom-0 overflow-scroll  dark:bg-gray-1000 transform-gpu pl-8 ">
       <div className="flex flex-row items-center gap-8 py-4 px-4">
         <h1 className="branding text-[24px] font-bold align-middle">
-          <Link href="/" className="hover:underline">Samansa</Link>
+          <Link href="/" className="hover:underline">
+            Samansa
+          </Link>
         </h1>
       </div>
       {reloading ? <div>Reloading list...</div> : null}
@@ -124,8 +138,12 @@ const Page: NextPage<PageProps> = (props) => {
           return (
             <section key={id} className="my-10">
               <h2 className="category text-[16px] font-bold px-4">
-                <Link href={`/categories/${category?.id}`} className="hover:underline">
-                  {category?.name ?? 'unnamed category'} <span className="text-lg font-bold">&gt;</span>
+                <Link
+                  href={`/categories/${category?.id}`}
+                  className="hover:underline"
+                >
+                  {category?.name ?? 'unnamed category'}{' '}
+                  <span className="text-lg font-bold">&gt;</span>
                 </Link>
               </h2>
               <div className="videos flex flex-row gap-2 overflow-scroll py-10 -my-8 px-4">
