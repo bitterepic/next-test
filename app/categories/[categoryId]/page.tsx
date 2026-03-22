@@ -2,7 +2,7 @@
 
 import { use, useMemo, useRef } from 'react';
 import {
-  GetHomeScreensDocument,
+  GetCategoryDocument,
   GetOriginalVideoDocument,
   GetVideoCommentsDocument,
 } from '@/lib/graphql/generated/graphql';
@@ -15,12 +15,12 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 const useState = (props: PageProps): State => {
-  const { categoryVideoId: [categoryVideoId = ''] = [] } = use(
-    props.searchParams,
-  );
-  const [categoryId, videoId] = categoryVideoId.split('-');
-  debugger;
-  const homeResponse = useQuery(GetHomeScreensDocument);
+  const { videoId: videoId = '' } = use(props.searchParams);
+  const { categoryId = '' } = use(props.params);
+  console.log(use(props.searchParams), use(props.params), {
+    categoryId,
+    videoId,
+  });
   const videoResponse = useQuery(GetOriginalVideoDocument, {
     variables: { id: videoId ?? '-1' },
     skip: !videoId,
@@ -29,23 +29,22 @@ const useState = (props: PageProps): State => {
     variables: { id: videoId, first: 5 },
     skip: !videoId,
   });
+  const categoryResponse = useQuery(GetCategoryDocument, {
+    variables: { id: categoryId },
+    skip: !categoryId,
+  });
+
   const state: State = useMemo(() => {
     const out: State = {
-      homeScreens: homeResponse.data?.homeScreens ?? [],
-      reloading: homeResponse.data ? homeResponse.loading : false,
+      homeScreens: [],
+      reloading: false,
     };
 
-    if (!videoId && categoryId) {
-      const activeCategory = homeResponse.data?.homeScreens.find(
-        (hs) => hs.category?.id === categoryId,
-      )?.category;
-
-      if (activeCategory) {
-        out.activeCategory = {
-          id: categoryId,
-          category: activeCategory,
-        };
-      }
+    if (categoryId) {
+      out.activeCategory = {
+        id: categoryId,
+        category: categoryResponse.data?.category,
+      };
     }
 
     if (videoId && categoryId) {
@@ -59,10 +58,9 @@ const useState = (props: PageProps): State => {
 
     return out;
   }, [
-    homeResponse.data,
     videoCommentsResponse.data,
     videoResponse.data,
-    homeResponse.loading,
+    categoryResponse.data,
     categoryId,
     videoId,
   ]);
@@ -71,33 +69,31 @@ const useState = (props: PageProps): State => {
 };
 
 interface PageProps {
-  searchParams: Promise<{ categoryVideoId?: string[] }>;
+  searchParams: Promise<{ videoId?: string }>;
+  params: Promise<{ categoryId?: string }>;
 }
 
 const Page: NextPage<PageProps> = (props) => {
   const router = useRouter();
-  const { homeScreens, reloading, activeVideo, activeCategory } =
-    useState(props);
+  const { reloading, activeVideo, activeCategory } = useState(props);
   const firstLoadRef = useRef(true);
 
   if (
-    !homeScreens ||
-    (firstLoadRef.current &&
-      ((activeVideo && !activeVideo.video) ||
-        (activeCategory && !activeCategory.category)))
+    !activeCategory ||
+    (firstLoadRef.current && activeVideo && !activeVideo.video)
   )
-    return (
-      <div className="flex items-center content-center justify-center absolute left-0 bottom-0 right-0 top-0">
-        <Image
-          src="/spinner.svg"
-          loading="eager"
-          className="dark:invert animate-spin"
-          width={64}
-          height={64}
-          alt="Loading..."
-        />
-      </div>
-    );
+  return (
+    <div className="flex items-center content-center justify-center absolute left-0 bottom-0 right-0 top-0">
+      <Image
+        src="/spinner.svg"
+        loading="eager"
+        className="dark:invert animate-spin"
+        width={64}
+        height={64}
+        alt="Loading..."
+      />
+    </div>
+  );
 
   firstLoadRef.current = false;
 
@@ -108,7 +104,9 @@ const Page: NextPage<PageProps> = (props) => {
       </h1>
       {reloading ? <div>Reloading list...</div> : null}
       <div>
-        {homeScreens.map(({ id, category, videos }) => {
+        {(() => {
+          const { category, id } = activeCategory;
+          const videos = category?.videos ?? [];
           if (!videos?.length) return null;
           if (!category) return null;
 
@@ -117,37 +115,9 @@ const Page: NextPage<PageProps> = (props) => {
               <h2 className="category text-[16px] font-bold px-4">
                 <Link href={`/categories/${category?.id}`}>
                   {category?.name ?? 'unnamed category'}
-                  {(() => {
-                    return null;
-                    // if (
-                    //   category?.id === activeCategory?.id &&
-                    //   activeCategory?.category
-                    // ) {
-                    //   return createPortal(
-                    //     <div
-                    //       style={{
-                    //         position: 'absolute',
-                    //         top: 0,
-                    //         left: 0,
-                    //         right: 0,
-                    //         bottom: 0,
-                    //         zIndex: 1000,
-                    //         backgroundColor: 'green',
-                    //       }}
-                    //     >
-                    //       <Link href="/">close</Link>
-                    //       <pre>
-                    //         {JSON.stringify(activeCategory?.category, null, 4)}
-                    //       </pre>
-                    //     </div>,
-                    //     document.body,
-                    //   );
-                    // }
-                    // return null;
-                  })()}
                 </Link>
               </h2>
-              <div className="videos flex flex-row gap-2 overflow-scroll py-10 -my-8 px-4">
+              <div className="videos flex flex-row flex-wrap gap-2 overflow-scroll py-10 -my-8 px-4">
                 {(videos ?? []).map((v) => {
                   const active =
                     activeVideo?.id === v.id &&
@@ -155,16 +125,15 @@ const Page: NextPage<PageProps> = (props) => {
                       ? activeVideo
                       : undefined;
 
-                  debugger;
                   return (
                     <div key={v.id}>
                       <VideoCard
                         value={v}
                         category={category}
+                        href={`/categories/${category.id}/videos/${v.id}`}
                         active={active}
-                        href={`/videos/${category.id}-${v.id}`}
                         onClose={() => {
-                          router.push('/');
+                          router.push(`/categories/${category.id}`);
                         }}
                       />
                     </div>
@@ -173,7 +142,7 @@ const Page: NextPage<PageProps> = (props) => {
               </div>
             </section>
           );
-        })}
+        })()}
       </div>
     </div>
   );

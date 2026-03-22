@@ -32,6 +32,7 @@ const useMounted = (onMounted: () => void) => {
 
 const VideoCard: FC<{
   value: Exclude<HomeScreen['videos'], undefined | null>[number];
+  href: string;
   active?: ActiveVideo;
   category: Category;
   onClose?: () => void;
@@ -41,6 +42,7 @@ const VideoCard: FC<{
     onClose,
     active,
     category,
+    href,
   } = props;
   const mounted = useMounted(() => syncDimensions());
   const width = 320;
@@ -459,7 +461,7 @@ const VideoCard: FC<{
           minWidth: width,
           opacity: dialogFragment ? 0 : 1,
         }}
-        href={`/categories/${category.id}/videos/${id}`}
+        href={href}
       >
         <div
           style={{ width, height, minWidth: width }}

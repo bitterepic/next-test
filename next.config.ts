@@ -15,12 +15,12 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source: '/categories/:categoryId*/videos/:videoId*',
+        source: '/videos/:categoryVideoId*',
         destination: '/',
       },
       {
-        source: '/categories/:categoryId*',
-        destination: '/',
+        source: '/categories/:categoryId/videos/:videoId*',
+        destination: '/categories/:categoryId/?videoId=:videoId*',
       },
     ];
   },
