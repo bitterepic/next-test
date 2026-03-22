@@ -25,10 +25,3 @@ export interface ActiveCategory {
     // Lazy loaded payloads
     category?: Category;
 }
-
-export interface State {
-  homeScreens: HomeScreen[];
-  reloading: boolean;
-  activeVideo?: ActiveVideo;
-  activeCategory?: ActiveCategory;
-}

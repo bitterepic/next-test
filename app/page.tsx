@@ -6,13 +6,20 @@ import {
   GetOriginalVideoDocument,
   GetVideoCommentsDocument,
 } from '@/lib/graphql/generated/graphql';
-import type { State } from '@/lib/types';
+import type { HomeScreen, ActiveVideo, ActiveCategory } from '@/lib/types';
 import { useQuery } from '@apollo/client';
 import type { NextPage } from 'next';
 import VideoCard from '@/lib/components/video-card';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+
+interface State {
+  homeScreens: HomeScreen[];
+  reloading: boolean;
+  activeVideo?: ActiveVideo;
+  activeCategory?: ActiveCategory;
+}
 
 const useState = (props: PageProps): State => {
   const { categoryVideoId: [categoryVideoId = ''] = [] } = use(

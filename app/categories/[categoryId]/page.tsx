@@ -6,7 +6,7 @@ import {
   GetOriginalVideoDocument,
   GetVideoCommentsDocument,
 } from '@/lib/graphql/generated/graphql';
-import type { State } from '@/lib/types';
+import type { ActiveVideo, ActiveCategory } from '@/lib/types';
 import { useQuery } from '@apollo/client';
 import type { NextPage } from 'next';
 import VideoCard from '@/lib/components/video-card';
@@ -14,13 +14,15 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
+interface State {
+  reloading: boolean;
+  activeVideo?: ActiveVideo;
+  activeCategory?: ActiveCategory;
+}
+
 const useState = (props: PageProps): State => {
   const { videoId: videoId = '' } = use(props.searchParams);
   const { categoryId = '' } = use(props.params);
-  console.log(use(props.searchParams), use(props.params), {
-    categoryId,
-    videoId,
-  });
   const videoResponse = useQuery(GetOriginalVideoDocument, {
     variables: { id: videoId ?? '-1' },
     skip: !videoId,
@@ -36,7 +38,6 @@ const useState = (props: PageProps): State => {
 
   const state: State = useMemo(() => {
     const out: State = {
-      homeScreens: [],
       reloading: false,
     };
 
@@ -65,6 +66,7 @@ const useState = (props: PageProps): State => {
     videoId,
   ]);
 
+  console.log(state);
   return state;
 };
 
