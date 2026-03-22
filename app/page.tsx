@@ -1,93 +1,41 @@
-'use client';
-
-import { use, useMemo, useRef } from 'react';
-import {
-  GetHomeScreensDocument,
-  GetOriginalVideoDocument,
-  GetVideoCommentsDocument,
-} from '@/lib/graphql/generated/graphql';
-import type { HomeScreen, ActiveVideo, ActiveCategory } from '@/lib/types';
-import { useQuery } from '@apollo/client';
+import Content, { type PageProps } from "./content";
 import type { NextPage } from 'next';
-import VideoCard from '@/lib/components/video-card';
-import Link from 'next/link';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import Header from "@/lib/components/header";
+import type { Metadata } from 'next'
+import { client } from "@/lib/apolloClient";
+import { GetCategoryDocument, GetOriginalVideoDocument } from '@/lib/graphql/generated/graphql';
 
-/**
- * The state for the page.
- */
-interface State {
-  homeScreens: HomeScreen[];
-  reloading: boolean;
-  activeVideo?: ActiveVideo;
-  activeCategory?: ActiveCategory;
-}
-
-/**
- * Organizes the input from the network requests into the internal state of the page.
- * @param props - The page props
- * @returns the constructed state
- */
-const useState = (props: PageProps): State => {
-  const { categoryVideoId: [categoryVideoId = ''] = [] } = use(
-    props.searchParams,
-  );
+export async function generateMetadata(
+  { searchParams } : PageProps
+): Promise<Metadata> {
+  const { categoryVideoId: [categoryVideoId = ''] = [] } = await searchParams;
   const [categoryId, videoId] = categoryVideoId.split('-');
-  debugger;
-  const homeResponse = useQuery(GetHomeScreensDocument);
-  const videoResponse = useQuery(GetOriginalVideoDocument, {
-    variables: { id: videoId ?? '-1' },
-    skip: !videoId,
-  });
-  const videoCommentsResponse = useQuery(GetVideoCommentsDocument, {
-    variables: { id: videoId, first: 5 },
-    skip: !videoId,
-  });
-  const state: State = useMemo(() => {
-    const out: State = {
-      homeScreens: homeResponse.data?.homeScreens ?? [],
-      reloading: homeResponse.data ? homeResponse.loading : false,
-    };
 
-    if (!videoId && categoryId) {
-      const activeCategory = homeResponse.data?.homeScreens.find(
-        (hs) => hs.category?.id === categoryId,
-      )?.category;
+  const categoryResponse = categoryId && await client.query({
+        query: GetCategoryDocument,
+        variables: { id: categoryId },
+      }).catch(() => undefined);
 
-      if (activeCategory) {
-        out.activeCategory = {
-          id: categoryId,
-          category: activeCategory,
-        };
-      }
+  const videoResponse = videoId && await client.query({
+        query: GetOriginalVideoDocument,
+        variables: { id: videoId },
+      }).catch(() => undefined);
+
+  let out = ['SAMANSA'];
+
+  if (categoryResponse) {
+    const { name: categoryName } = categoryResponse.data.category;
+
+    out = out.concat([categoryName ?? '']);
+
+    if (videoResponse) {
+      const { title: videoTitle } = videoResponse.data.originalVideo ?? {};
+
+      out = out.concat([videoTitle ?? '']);
     }
-
-    if (videoId && categoryId) {
-      out.activeVideo = {
-        id: videoId,
-        video: videoResponse.data?.originalVideo,
-        comments: videoCommentsResponse.data?.videoComments,
-        categoryId,
-      };
-    }
-
-    return out;
-  }, [
-    homeResponse.data,
-    videoCommentsResponse.data,
-    videoResponse.data,
-    homeResponse.loading,
-    categoryId,
-    videoId,
-  ]);
-
-  return state;
-};
-
-interface PageProps {
-  searchParams: Promise<{ categoryVideoId?: string[] }>;
+  }
+  return {
+    title: out.reverse().join(' | '),
+  };
 }
 
 /**
@@ -95,82 +43,7 @@ interface PageProps {
  * @param props - The page props
  */
 const Page: NextPage<PageProps> = (props) => {
-  const router = useRouter();
-  const { homeScreens, reloading, activeVideo, activeCategory } =
-    useState(props);
-  const firstLoadRef = useRef(true);
-
-  if (
-    !homeScreens ||
-    (firstLoadRef.current &&
-      ((activeVideo && !activeVideo.video) ||
-        (activeCategory && !activeCategory.category)))
-  )
-    return (
-      <div className="flex items-center content-center justify-center absolute left-0 bottom-0 right-0 top-0">
-        <Image
-          src="/spinner.svg"
-          loading="eager"
-          className="dark:invert animate-spin"
-          width={64}
-          height={64}
-          alt="Loading..."
-        />
-      </div>
-    );
-
-  firstLoadRef.current = false;
-
-  return (
-    <div className="flex flex-col gap-1 absolute top-0 left-0 right-0 bottom-0 overflow-scroll  dark:bg-gray-1000 transform-gpu pl-8 ">
-      <Header/>
-      {reloading ? <div>Reloading list...</div> : null}
-      <div>
-        {homeScreens.map(({ id, category, videos }) => {
-          if (!videos?.length) return null;
-          if (!category) return null;
-
-          return (
-            <section key={id} className="my-10">
-              <h2 className="category text-[16px] font-bold px-4">
-                <Link
-                  href={`/categories/${category?.id}`}
-                  className="hover:underline"
-                >
-                  {category?.name ?? 'unnamed category'}{' '}
-                  <span className="text-lg font-bold">&gt;</span>
-                </Link>
-              </h2>
-              <div className="videos flex flex-row gap-2 overflow-scroll py-10 -my-8 px-4">
-                {(videos ?? []).map((v) => {
-                  const active =
-                    activeVideo?.id === v.id &&
-                    activeVideo?.categoryId === category?.id
-                      ? activeVideo
-                      : undefined;
-
-                  debugger;
-                  return (
-                    <div key={v.id}>
-                      <VideoCard
-                        value={v}
-                        category={category}
-                        active={active}
-                        href={`/videos/${category.id}-${v.id}`}
-                        onClose={() => {
-                          router.push('/');
-                        }}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-          );
-        })}
-      </div>
-    </div>
-  );
+  return <Content {...props}/>;
 };
 
 export default Page;
