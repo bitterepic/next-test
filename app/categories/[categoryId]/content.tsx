@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useMemo, useRef } from 'react';
@@ -13,7 +12,7 @@ import type { NextPage } from 'next';
 import VideoCard from '@/lib/components/video-card';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import Head from "@/lib/components/header";
+import Head from '@/lib/components/header';
 
 /**
  * The internal state of the page
@@ -84,7 +83,7 @@ export interface ContentProps {
 }
 
 /**
- * Page used for showing a single category, as well as an open video as an overlay. 
+ * Page used for showing a single category, as well as an open video as an overlay.
  * @param props - The page props
  */
 const Page: NextPage<ContentProps> = (props) => {
@@ -112,8 +111,10 @@ const Page: NextPage<ContentProps> = (props) => {
   firstLoadRef.current = false;
 
   return (
-    <div className="flex flex-col gap-1 absolute top-0 left-0 right-0 bottom-0 overflow-scroll  dark:bg-gray-1000 transform-gpu pl-8 ">
-      <Head/>
+    <div className="flex flex-col gap-1 absolute top-0 left-0 right-0 bottom-0 overflow-scroll dark:bg-gray-1000 transform-gpu pl-8 ">
+      <Head>
+        <div>&gt;</div><div>{activeCategory.category?.name}</div>
+      </Head>
       {reloading ? <div>Reloading list...</div> : null}
       <div>
         {(() => {
