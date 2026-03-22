@@ -319,7 +319,7 @@ const VideoCard: FC<{
                   className={classnames(
                     'overflow-auto',
                     'relative',
-                    ...(mounted ? ['transition-height'] : ['transition-none']),
+                    'transition-all',
                   )}
                   style={{
                     height: 0,
@@ -376,7 +376,7 @@ const VideoCard: FC<{
                 className={classnames(
                   'bg-neutral-800/70',
                   'flex-1',
-                  ...(mounted ? ['transition-height'] : ['transition-none']),
+                  ...(mounted ? ['transition-all'] : ['transition-none']),
                   'inset-shadow-sm',
                   'inset-shadow-black',
                   'relative',
