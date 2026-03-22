@@ -10,9 +10,9 @@ import type { ActiveVideo, ActiveCategory } from '@/lib/types';
 import { useQuery } from '@apollo/client';
 import type { NextPage } from 'next';
 import VideoCard from '@/lib/components/video-card';
-import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import Head from "@/lib/components/header";
 
 /**
  * The internal state of the page
@@ -113,11 +113,7 @@ const Page: NextPage<PageProps> = (props) => {
 
   return (
     <div className="flex flex-col gap-1 absolute top-0 left-0 right-0 bottom-0 overflow-scroll  dark:bg-gray-1000 transform-gpu pl-8 ">
-      <h1 className="branding text-[24px] font-bold py-4 px-4">
-        <Link href="/" className="hover:underline">
-          Samansa
-        </Link>
-      </h1>
+      <Head/>
       {reloading ? <div>Reloading list...</div> : null}
       <div>
         {(() => {

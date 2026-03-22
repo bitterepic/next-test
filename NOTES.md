@@ -34,6 +34,7 @@
 Design
 
 The app is designed to make transitions of state clear and add some surprise and delight.
+THIS CODING SAMPLE WAS WRITTEN WITH NO AI.
 
 - Clicking a video animates it opening, like an app on your phone.
 - Spinners are minimized when possible to reduce CLS
@@ -44,11 +45,14 @@ Technical Notes:
 - / opens videos in /videos/:categoryId-:videoId
 - /category/:categoryId/videos/:videoId shows videos using /category/:categoryId
 - Light and dark themes should work
+- This app was implemented with minimal libraries
 
 
 Thoughts:
 - As the user base grows, it will become important to optimize costs.  Things like immutable resources to reduce downloads and pings to the server will help.
 - There are pluses and minuses to nextjs/tailwind.  There are more modern frameworks than can speed up development and make implementing nice transitions easier.
-- Frameworks liek nextjs/react/tailwind make the app seem slower than it is during development builds, which makes it harder to gauge issues early.
+- Frameworks like nextjs/react/tailwind make the app seem slower than it is during development builds, which makes it harder to gauge issues early.
 - Usually I would implement a UI like this using absolute positioning.  The reason is it is easier to optimize what is rendered and it is easier to do fancy effects for movement of elements.
 
+
+Generally JS in CSS libraries can make performance problems.
