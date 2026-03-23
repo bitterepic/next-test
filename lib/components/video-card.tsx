@@ -194,7 +194,8 @@ const VideoCard: FC<{
             width="64"
             loading="eager"
             height="64"
-            alt="時間"
+            alt="読み込み中"
+
             className="invert drop-shadow-sm animate-spin"
           ></Image>
         </div>
@@ -202,7 +203,7 @@ const VideoCard: FC<{
       <div
         className={classnames(
           'gradient',
-          'z-1',
+          'z-2',
           'absolute',
           'left-0',
           'right-0',
@@ -231,7 +232,7 @@ const VideoCard: FC<{
           'left-0',
           'right-0',
           'bottom-0',
-          'z-0',
+          'z-1',
           'pointer-events-none',
           'bg-contain',
         )}
@@ -239,6 +240,23 @@ const VideoCard: FC<{
           backgroundImage: `url(${JSON.stringify(landscapeThumbnail ?? '')})`,
         }}
       ></div>
+
+      {title && <div
+        className={classnames(
+          'absolute',
+          'top-0',
+          'left-0',
+          'right-0',
+          'bottom-0',
+          'z-0',
+          'pointer-events-none',
+          'flex',
+          'items-center',
+          'justify-center',
+          'text-sm',
+          'font-bold'
+        )}
+      >{title}</div>}
     </div>
   );
   const summaryWidth = (width * 4) / 3;
@@ -477,6 +495,7 @@ const VideoCard: FC<{
       <Link
         key={id}
         ref={ref}
+        title={title ?? ""}
         style={{
           width,
           height,
