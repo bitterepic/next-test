@@ -83,6 +83,18 @@ const VideoOverlay: FC<VideoOverlayProps> = (props) => {
 
   if (!video || !comments || state === State.CLOSED) return null;
 
+  const cleanupTransitions = () => {
+    transitionCountRef.current -= 1;
+
+    if (transitionCountRef.current === 0) {
+      if (state === State.CLOSING) {
+        setState(State.CLOSED);
+      } else if (state === State.OPENING) {
+        setState(State.OPENED);
+      }
+    }
+  };
+
   const openRenderState = [
     State.OPENING,
     State.OPENED,
@@ -107,17 +119,8 @@ const VideoOverlay: FC<VideoOverlayProps> = (props) => {
         onTransitionStart={() => {
           transitionCountRef.current += 1;
         }}
-        onTransitionEnd={() => {
-          transitionCountRef.current -= 1;
-
-          if (transitionCountRef.current === 0) {
-            if (state === State.CLOSING) {
-              setState(State.CLOSED);
-            } else if (state === State.OPENING) {
-              setState(State.OPENED);
-            }
-          }
-        }}
+        onTransitionCancel={cleanupTransitions}
+        onTransitionEnd={cleanupTransitions}
         style={{
           minHeight: height,
           minWidth: width,
@@ -137,16 +140,14 @@ const VideoOverlay: FC<VideoOverlayProps> = (props) => {
                 left: left + width / 2,
                 top: top + height / 2,
                 transition: ifAnimated([
-                  `top ${transition.position}ms ${transition.expand}ms ease`,
-                  `left ${transition.position}ms ${transition.expand}ms ease`,
+                  `top ${transition.position}ms`,
+                  `left ${transition.position}ms`,
                 ]),
               }),
         }}
       >
         <div
           className={classnames(
-            'bg-white',
-            'dark:bg-gray-800',
             'rounded-lg',
             'overflow-hidden',
             'flex',
@@ -170,15 +171,15 @@ const VideoOverlay: FC<VideoOverlayProps> = (props) => {
               />
             </div>
             <div
-              className={classnames('overflow-auto', 'relative')}
+              className={classnames('relative')}
               style={{
                 ...(openRenderState
                   ? {
                       height: 250,
                       width: previewWidth,
                       transition: ifAnimated([
-                        `height ${transition.expand}ms ${transition.position}ms`,
-                        `width 0ms ${transition.position}ms`,
+                        `height ${transition.expand}ms`,
+                        `width ${transition.position}ms`,
                       ]),
                       overflow: 'auto',
                     }
@@ -192,16 +193,16 @@ const VideoOverlay: FC<VideoOverlayProps> = (props) => {
             >
               <Information
                 value={video}
-                className={classnames('absolute top-0 left-0 px-4')}
+                className={classnames(
+                  'absolute top-0 left-0 right-0 px-4 overflow-visible',
+                )}
+                style={{ width: previewWidth, minWidth: previewWidth }}
               />
             </div>
           </div>
           <div
             className={classnames(
-              'bg-neutral-800/70',
               'flex-1',
-              'inset-shadow-sm',
-              'inset-shadow-black',
               'relative',
               'z-10000',
               'overflow-auto',
@@ -213,9 +214,7 @@ const VideoOverlay: FC<VideoOverlayProps> = (props) => {
                 ? {
                     height: 'auto',
                     width: 500,
-                    transition: ifAnimated(
-                      `width ${transition.expand}ms ${transition.position}ms`,
-                    ),
+                    transition: ifAnimated(`width ${transition.expand}ms`),
                   }
                 : {
                     width: 0,
@@ -225,8 +224,17 @@ const VideoOverlay: FC<VideoOverlayProps> = (props) => {
             }}
           >
             <div
-              style={{ minWidth: 500 }}
-              className="p-4 absolute top-0 right-0 bottom-0 overflow-auto"
+              style={{ minWidth: 500 - 20 }}
+              className={classnames(
+                'p-4',
+                'absolute',
+                'top-0',
+                'right-0',
+                'bottom-0',
+                'overflow-auto',
+                'bg-neutral-700/70',
+                'rounded-lg',
+              )}
             >
               {value.comments ? <Comments value={value.comments} /> : null}
             </div>

@@ -99,7 +99,7 @@ const VideoCard: FC<VideoCardProps> = (props) => {
             : {
                 // Reshow after the close transtion finishes
                 opacity: 1,
-                transition: 'opacity 0s 500ms',
+                transition: 'opacity 0s 300ms',
               }),
         }}
         href={href}
