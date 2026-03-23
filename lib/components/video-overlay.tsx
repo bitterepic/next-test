@@ -100,6 +100,7 @@ const VideoOverlay: FC<VideoOverlayProps> = (props) => {
     State.OPENED,
     State.START_CLOSE,
   ].includes(state);
+  const commentsWidth = 500 - 20;
 
   return (
     <Portal>
@@ -108,8 +109,8 @@ const VideoOverlay: FC<VideoOverlayProps> = (props) => {
       <dialog
         open
         className={[
-          "text-white",
-          "bg-transparent",
+          'text-white',
+          'bg-transparent',
           'ease-in-out',
           'overflow-hidden',
           'flex',
@@ -164,7 +165,7 @@ const VideoOverlay: FC<VideoOverlayProps> = (props) => {
               animate={animate}
             />
 
-            <div>
+            <div className="rounded-lg overflow-hidden">
               <VideoThumbnail
                 value={video}
                 width={!openRenderState ? sourceRect.width : previewWidth}
@@ -228,7 +229,11 @@ const VideoOverlay: FC<VideoOverlayProps> = (props) => {
             }}
           >
             <div
-              style={{ minWidth: 500 - 20 }}
+              style={{ minWidth: commentsWidth,
+
+                    maxWidth: commentsWidth,
+
+              }}
               className={classnames(
                 'p-4',
                 'absolute',
