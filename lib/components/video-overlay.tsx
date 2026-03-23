@@ -105,8 +105,11 @@ const VideoOverlay: FC<VideoOverlayProps> = (props) => {
     <Portal>
       <Backdrop open={open} onClose={handleOnClose} animate={animate} />
 
-      <div
+      <dialog
+        open
         className={[
+          "text-white",
+          "bg-transparent",
           'ease-in-out',
           'overflow-hidden',
           'flex',
@@ -240,7 +243,7 @@ const VideoOverlay: FC<VideoOverlayProps> = (props) => {
             </div>
           </div>
         </div>
-      </div>
+      </dialog>
     </Portal>
   );
 };
