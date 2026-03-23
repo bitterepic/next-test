@@ -27,7 +27,7 @@ const useMounted = (onMounted: () => void) => {
       setTimeout(() => {
         setMounted(true);
         onMounted();
-      }, 1000);
+      }, 100);
     }
   }, [mounted, setMounted, onMounted]);
 
@@ -337,14 +337,14 @@ const VideoCard: FC<{
                   style={{
                     height: 0,
                     width: 0,
-                    transition: 'height 500ms',
+                    transition: mounted ? 'height 500ms': undefined,
                     overflow: 'visible',
 
                     ...(active && active === previousActive
                       ? {
                           height: 250,
                           width: summaryWidth,
-                          transition: 'height 500ms 300ms, width 0ms 300ms',
+                          transition: mounted ? 'height 500ms 300ms, width 0ms 300ms': undefined,
                           overflow: 'auto',
                         }
                       : {}),
