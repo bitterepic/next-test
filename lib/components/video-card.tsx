@@ -36,7 +36,7 @@ const useMounted = (onMounted: () => void) => {
 
 /**
  * A component for rendering a video card.  It also includes the functionality to show a detail view.
- * @param props.value - The configuration for the display of the card 
+ * @param props.value - The configuration for the display of the card
  * @param props.href - The link url for when the card it clicked.
  * @param props.active - The modal shown when the card is open.
  * @param props.category - The category containing the video
@@ -241,6 +241,7 @@ const VideoCard: FC<{
       ></div>
     </div>
   );
+  const summaryWidth = (width * 4) / 3;
 
   const dialogFragment = (() => {
     const a = active || previousActive;
@@ -327,26 +328,31 @@ const VideoCard: FC<{
                 </button>
                 <div>{cardFragment}</div>
                 <div
-                  className={classnames(
-                    'overflow-auto',
-                    'relative',
-                    'transition-all',
-                  )}
+                  className={classnames('overflow-auto', 'relative')}
                   style={{
                     height: 0,
                     width: 0,
+                    transition: 'height 500ms',
+                    overflow: 'visible',
+
                     ...(active && active === previousActive
                       ? {
                           height: 250,
-                          width: (width * 4) / 3,
-                          minWidth: (width * 4) / 3,
-                          transitionDelay: '300ms',
-                          transitionDuration: '500ms',
+                          width: summaryWidth,
+                          transition: 'height 500ms 300ms, width 0ms 300ms',
+                          overflow: 'auto',
                         }
                       : {}),
                   }}
                 >
-                  <div className="absolute top-0 left-0 right-0 px-4">
+                  <div
+                    className="absolute top-0 left-0 right-0 px-4"
+                    style={{
+                      width: summaryWidth,
+                      minWidth: summaryWidth,
+                      overflow: 'visible',
+                    }}
+                  >
                     <dl>
                       <dd className="my-4 text-xl font-bold">
                         {a.video?.title}
@@ -470,7 +476,15 @@ const VideoCard: FC<{
           width,
           height,
           minWidth: width,
-          opacity: dialogFragment ? 0 : 1,
+          ...(dialogFragment
+            ? {
+                opacity: 0,
+                transition: 'opacity 0s 10ms',
+              }
+            : {
+                opacity: 1,
+                transition: 'opacity 0s 0ms',
+              }),
         }}
         href={href}
       >
