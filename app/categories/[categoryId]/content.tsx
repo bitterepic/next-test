@@ -143,11 +143,14 @@ const Page: NextPage<ContentProps> = (props) => {
                       <VideoCard
                         value={v}
                         category={category}
-                        href={`/categories/${category.id}/videos/${v.id}`}
                         active={active}
+                        href={`/categories/${category.id}/videos/${v.id}`}
+                        animate={true}
                         onClose={() => {
                           router.push(`/categories/${category.id}`);
                         }}
+                        width={320}
+                        height={180}
                       />
                     </div>
                   );

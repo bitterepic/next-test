@@ -25,3 +25,12 @@ export interface ActiveCategory {
     // Lazy loaded payloads
     category?: Category;
 }
+
+export interface Rect {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+  width: number;
+  height: number;
+}

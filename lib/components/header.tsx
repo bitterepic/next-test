@@ -10,6 +10,7 @@ const Header: FC<{ children?: ReactNode }> = ({ children = null }) => {
           <Image
             width={120}
             height={24}
+            priority={true}
             className="dark:hidden block"
             src="/samansa-logo-light.svg"
             alt="Samansa"
@@ -17,6 +18,7 @@ const Header: FC<{ children?: ReactNode }> = ({ children = null }) => {
           <Image
             width={120}
             height={24}
+            priority={true}
             className="hidden dark:block"
             src="/samansa-logo-dark.svg"
             alt="Samansa"

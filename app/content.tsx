@@ -13,7 +13,7 @@ import VideoCard from '@/lib/components/video-card';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import Header from "@/lib/components/header";
+import Header from '@/lib/components/header';
 
 /**
  * The state for the page.
@@ -32,7 +32,7 @@ const useParameterData = (props: ContentProps) => {
   const [categoryId, videoId] = categoryVideoId.split('-');
 
   return { categoryId, videoId };
-}
+};
 
 /**
  * Organizes the input from the network requests into the internal state of the page.
@@ -96,7 +96,7 @@ export interface ContentProps {
 }
 
 /**
- * Page used for showing a list of user categories, as well as an open video as an overlay. 
+ * Page used for showing a list of user categories, as well as an open video as an overlay.
  * @param props - The page props
  */
 const Page: NextPage<ContentProps> = (props) => {
@@ -128,7 +128,7 @@ const Page: NextPage<ContentProps> = (props) => {
 
   return (
     <div className="flex flex-col gap-1 absolute top-0 left-0 right-0 bottom-0 overflow-scroll  dark:bg-gray-1000 transform-gpu pl-8 ">
-      <Header/>
+      <Header />
       {reloading ? <div>Reloading list...</div> : null}
       <div>
         {homeScreens.map(({ id, category, videos }) => {
@@ -154,7 +154,6 @@ const Page: NextPage<ContentProps> = (props) => {
                       ? activeVideo
                       : undefined;
 
-                  debugger;
                   return (
                     <div key={v.id}>
                       <VideoCard
@@ -162,9 +161,12 @@ const Page: NextPage<ContentProps> = (props) => {
                         category={category}
                         active={active}
                         href={`/videos/${category.id}-${v.id}`}
+                        animate={true}
                         onClose={() => {
                           router.push('/');
                         }}
+                        width={320}
+                        height={180}
                       />
                     </div>
                   );
