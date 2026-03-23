@@ -158,11 +158,14 @@ const VideoThumbnail: FC<VideoThumbnailProps> = (props) => {
         }}
       ></div>
 
-      {title && (
+      {(
         <div
           className={classnames(
             'absolute',
             'top-0',
+            'text-black',
+            'bg-neutral-400',
+            'overflow-hidden',
             'left-0',
             'right-0',
             'bottom-0',
