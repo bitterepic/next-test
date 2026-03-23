@@ -13,8 +13,9 @@ const Comments: FC<CommentsProps> = (props) => {
 
   return (
     <>
-      <div className="text-sm font-bold">コメント</div>
+      <div className="text-sm font-bold">コメント ({comments.allCount})</div>
       <ul>
+        {comments.allCount === 0 ? <div className="my-4 text-sm">まだコメントはありません。コメントしてみませんか？</div> : null}
         {(comments.edges ?? []).map((e) => {
           if (e.node) {
             return (
