@@ -310,13 +310,18 @@ const VideoCard: FC<{
               <div className="flex flex-col relative">
                 <button
                   onClick={onClose}
-                  style={{
-                    position: 'absolute',
-                    cursor: 'pointer',
-                    top: 10,
-                    left: 10,
-                    zIndex: 10,
-                  }}
+                  className={classnames(
+                    'rounded-full',
+                    'p-1',
+                    'bg-black/50',
+                    'top-2',
+                    'left-2',
+                    'z-10',
+                    'absolute',
+                    'transition-all',
+                    'cursor-pointer',
+                    ...((active === previousActive) ? ['opacity-100'] : ['opacity-0'])
+                  )}
                 >
                   <Image
                     width={32}
