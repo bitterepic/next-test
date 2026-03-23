@@ -184,7 +184,8 @@ const VideoOverlay: FC<VideoOverlayProps> = (props) => {
                         `height ${transition.expand}ms`,
                         `width ${transition.position}ms`,
                       ]),
-                      overflow: 'auto',
+                      overflowX: 'hidden',
+                      overflowY: 'auto',
                     }
                   : {
                       height: 0,
