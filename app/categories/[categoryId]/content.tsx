@@ -130,7 +130,7 @@ const Page: NextPage<ContentProps> = (props) => {
                 {category?.name ?? 'unnamed category'}{' '}
                 <span className="text-lg font-bold opacity-0">&gt;</span>
               </h2>
-              <div className="videos flex flex-row flex-wrap gap-2 overflow-scroll py-10 -my-8 px-4">
+              <div className="videos flex flex-row flex-wrap gap-4 overflow-scroll py-10 -my-8 px-4">
                 {(videos ?? []).map((v) => {
                   const active =
                     activeVideo?.id === v.id &&
