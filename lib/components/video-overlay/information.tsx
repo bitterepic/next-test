@@ -30,7 +30,7 @@ const Information: FC<InformationProps> = (props) => {
                 width="16"
                 height="16"
                 alt="時間"
-                className="dark:invert drop-shadow-sm"
+                className="invert drop-shadow-sm"
               ></Image>
               {value.likeNum}
             </dd>
