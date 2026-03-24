@@ -104,7 +104,7 @@ const VideoOverlay: FC<VideoOverlayProps> = (props) => {
 
   return (
     <Portal>
-      <Backdrop open={open} onClose={handleOnClose} animate={animate} />
+      <Backdrop open={openRenderState} onClose={handleOnClose} animate={animate} />
 
       <dialog
         open
