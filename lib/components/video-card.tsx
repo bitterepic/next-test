@@ -26,11 +26,21 @@ export interface VideoCardProps {
  * @param props.category - The category containing the video
  */
 const VideoCard: FC<VideoCardProps> = (props) => {
-  const { value, onClose, active, href, height, width } = props;
+  const {
+    value,
+    onClose,
+    active,
+    href,
+    height,
+    width,
+    animate = false,
+  } = props;
   const ref = useRef<HTMLAnchorElement>(null);
+  const [animateReady, setAnimateReady] = useState(false);
 
   const [sourceRect, setSourceRect] = useState<Rect | null>(null);
   const [overlayActive, setOverlayActive] = useState<ActiveVideo | null>(null);
+  const open = active === overlayActive;
   const syncSourceRect = useCallback(() => {
     if (ref.current) {
       const { top, left, right, bottom, width, height } =
@@ -68,8 +78,13 @@ const VideoCard: FC<VideoCardProps> = (props) => {
             syncSourceRect();
             onClose();
           }}
-          open={active === overlayActive}
-          animate={true}
+          ref={() => {
+            if (!animateReady) {
+              setAnimateReady(true);
+            }
+          }}
+          open={open}
+          animate={animate && animateReady}
           sourceRect={sourceRect}
         />
       ) : null}
@@ -109,6 +124,11 @@ const VideoCard: FC<VideoCardProps> = (props) => {
           onClick={() => {
             syncSourceRect();
           }}
+          ref={() => {
+            if (!animateReady && !active && !overlayActive) {
+              setAnimateReady(true);
+            }
+          }}
         >
           <VideoThumbnail
             value={value}
@@ -116,7 +136,7 @@ const VideoCard: FC<VideoCardProps> = (props) => {
             height={height}
             loading={Boolean(active)}
             interactive={true}
-            animate={true}
+            animate={animate && animateReady}
           />
         </div>
       </Link>

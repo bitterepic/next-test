@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useMemo, useRef } from 'react';
+import { use, useMemo, useState, useEffect } from 'react';
 import {
   GetCategoryDocument,
   GetOriginalVideoDocument,
@@ -28,7 +28,7 @@ interface State {
  * @param props - The page props
  * @returns the constructed state
  */
-const useState = (props: ContentProps): State => {
+const usePageState = (props: ContentProps): State => {
   const { videoId: videoId = '' } = use(props.searchParams);
   const { categoryId = '' } = use(props.params);
   const videoResponse = useQuery(GetOriginalVideoDocument, {
@@ -88,13 +88,18 @@ export interface ContentProps {
  */
 const Page: NextPage<ContentProps> = (props) => {
   const router = useRouter();
-  const { reloading, activeVideo, activeCategory } = useState(props);
-  const firstLoadRef = useRef(true);
+  const { reloading, activeVideo, activeCategory } = usePageState(props);
+  const [firstRender, setFirstRender] = useState(true);
+  const shouldRenderSpinner =
+    !activeCategory || (firstRender && activeVideo && !activeVideo.video);
 
-  if (
-    !activeCategory ||
-    (firstLoadRef.current && activeVideo && !activeVideo.video)
-  )
+  useEffect(() => {
+    if (!shouldRenderSpinner && firstRender) {
+      setFirstRender(false);
+    }
+  }, [shouldRenderSpinner, firstRender]);
+
+  if (shouldRenderSpinner) {
     return (
       <div className="flex items-center content-center justify-center absolute left-0 bottom-0 right-0 top-0">
         <Image
@@ -107,14 +112,13 @@ const Page: NextPage<ContentProps> = (props) => {
         />
       </div>
     );
-
-  firstLoadRef.current = false;
+  }
 
   return (
     <div className="flex flex-col gap-1 absolute top-0 left-0 right-0 bottom-0 overflow-scroll dark:bg-gray-1000 transform-gpu pl-8 ">
       <Header>
-        <div>&gt;</div><div className="text-sm font-bold">{activeCategory.category?.name}</div>
-
+        <div>&gt;</div>
+        <div className="text-sm font-bold">{activeCategory.category?.name}</div>
       </Header>
       {reloading ? <div>Reloading list...</div> : null}
       <div>

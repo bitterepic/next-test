@@ -1,4 +1,4 @@
-import { type FC, useLayoutEffect, useState, useRef } from 'react';
+import { type FC, useLayoutEffect, useState, useRef, Ref } from 'react';
 import Portal from './portal';
 import classnames from 'classnames';
 import Information from './video-overlay/information';
@@ -18,6 +18,8 @@ export interface VideoOverlayProps {
   onClose: () => void;
   /** The source rect to transition from */
   sourceRect: Rect;
+  /** A ref to the container */
+  ref: Ref<HTMLDialogElement>
 }
 
 enum State {
@@ -33,7 +35,7 @@ enum State {
  * A video overlay
  */
 const VideoOverlay: FC<VideoOverlayProps> = (props) => {
-  const { open, onClose, animate, sourceRect, value } = props;
+  const { open, onClose, animate, sourceRect, value, ref } = props;
   const { video, comments } = value;
   const { width, height, left, top } = sourceRect;
   const previewWidth = (width * 4) / 3;
@@ -55,20 +57,28 @@ const VideoOverlay: FC<VideoOverlayProps> = (props) => {
       open &&
       [State.CLOSED, State.CLOSING, State.START_CLOSE].includes(state)
     ) {
-      setState(State.START_OPEN);
-      requestAnimationFrame(() => {
-        setState(State.OPENING);
-      });
+      if (animate) {
+        setState(State.START_OPEN);
+        requestAnimationFrame(() => {
+          setState(State.OPENING);
+        });
+      } else {
+        setState(State.OPENED);
+      }
     } else if (
       !open &&
       [State.OPENED, State.OPENING, State.START_OPEN].includes(state)
     ) {
-      setState(State.START_CLOSE);
-      requestAnimationFrame(() => {
-        setState(State.CLOSING);
-      });
+      if (animate) {
+        setState(State.START_CLOSE);
+        requestAnimationFrame(() => {
+          setState(State.CLOSING);
+        });
+      } else {
+        setState(State.CLOSED);
+      }
     }
-  }, [open, state]);
+  }, [open, state, animate]);
 
   const ifAnimated = (value: string | string[]): string | undefined => {
     if (animate) {
@@ -104,10 +114,15 @@ const VideoOverlay: FC<VideoOverlayProps> = (props) => {
 
   return (
     <Portal>
-      <Backdrop open={openRenderState} onClose={handleOnClose} animate={animate} />
+      <Backdrop
+        open={openRenderState}
+        onClose={handleOnClose}
+        animate={animate}
+      />
 
       <dialog
         open
+        ref={ref}
         className={[
           'text-white',
           'bg-transparent',
@@ -171,7 +186,7 @@ const VideoOverlay: FC<VideoOverlayProps> = (props) => {
                 width={!openRenderState ? sourceRect.width : previewWidth}
                 height={!openRenderState ? sourceRect.height : previewHeight}
                 interactive={false}
-                animate={true}
+                animate={animate}
               />
             </div>
             <div
@@ -229,10 +244,10 @@ const VideoOverlay: FC<VideoOverlayProps> = (props) => {
             }}
           >
             <div
-              style={{ minWidth: commentsWidth,
+              style={{
+                minWidth: commentsWidth,
 
-                    maxWidth: commentsWidth,
-
+                maxWidth: commentsWidth,
               }}
               className={classnames(
                 'p-4',
