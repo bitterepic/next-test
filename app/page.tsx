@@ -1,6 +1,6 @@
+import { Suspense } from "react";
 import Content, { type ContentProps } from "./content";
-import type { NextPage } from 'next';
-import type { Metadata } from 'next'
+import type { NextPage, Metadata } from 'next';
 import { client } from "@/lib/apolloClient";
 import { GetCategoryDocument, GetOriginalVideoDocument } from '@/lib/graphql/generated/graphql';
 
@@ -43,7 +43,7 @@ export async function generateMetadata(
  * @param props - The page props
  */
 const Page: NextPage<ContentProps> = (props) => {
-  return <Content {...props}/>;
+  return <Suspense><Content {...props}/></Suspense>;
 };
 
 export default Page;

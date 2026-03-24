@@ -18,7 +18,7 @@ import Header from '@/lib/components/header';
 /**
  * The state for the page.
  */
-interface State {
+interface PageState {
   homeScreens: HomeScreen[];
   reloading: boolean;
   activeVideo?: ActiveVideo;
@@ -39,7 +39,7 @@ const useParameterData = (props: ContentProps) => {
  * @param props - The page props
  * @returns the constructed state
  */
-const useState = (props: ContentProps): State => {
+const usePageState = (props: ContentProps): PageState => {
   const { categoryId, videoId } = useParameterData(props);
   const homeResponse = useQuery(GetHomeScreensDocument);
   const videoResponse = useQuery(GetOriginalVideoDocument, {
@@ -50,8 +50,8 @@ const useState = (props: ContentProps): State => {
     variables: { id: videoId, first: 5 },
     skip: !videoId,
   });
-  const state: State = useMemo(() => {
-    const out: State = {
+  const state: PageState = useMemo(() => {
+    const out: PageState = {
       homeScreens: homeResponse.data?.homeScreens ?? [],
       reloading: homeResponse.data ? homeResponse.loading : false,
     };
@@ -102,7 +102,7 @@ export interface ContentProps {
 const Page: NextPage<ContentProps> = (props) => {
   const router = useRouter();
   const { homeScreens, reloading, activeVideo, activeCategory } =
-    useState(props);
+    usePageState(props);
   const firstLoadRef = useRef(true);
 
   if (
