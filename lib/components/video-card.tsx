@@ -78,7 +78,9 @@ const VideoCard: FC<VideoCardProps> = (props) => {
           }}
           ref={() => {
             if (!animateReady) {
-              setAnimateReady(true);
+              requestAnimationFrame(() => {
+                setAnimateReady(true);
+              });
             }
           }}
           open={open}
@@ -124,7 +126,9 @@ const VideoCard: FC<VideoCardProps> = (props) => {
           }}
           ref={() => {
             if (!animateReady && !active && !overlayActive) {
-              setAnimateReady(true);
+              requestAnimationFrame(() => {
+                setAnimateReady(true);
+              });
             }
           }}
         >
