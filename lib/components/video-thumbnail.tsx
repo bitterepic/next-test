@@ -1,4 +1,4 @@
-import type { CSSProperties, FC } from 'react';
+import type { CSSProperties, FC, Ref } from 'react';
 import classnames from 'classnames';
 import type { HomeScreen } from '@/lib/types';
 import Image from 'next/image';
@@ -20,6 +20,7 @@ interface VideoThumbnailProps {
   loading?: boolean;
   style?: CSSProperties;
   className?: string;
+  ref?: Ref<HTMLDivElement>;
 }
 
 /** A component for showing an interactive thumbnail. */
@@ -33,6 +34,7 @@ const VideoThumbnail: FC<VideoThumbnailProps> = (props) => {
     animate = false,
     className,
     style = {},
+    ref,
   } = props;
   const gradientHeight = 600;
 
@@ -153,12 +155,13 @@ const VideoThumbnail: FC<VideoThumbnailProps> = (props) => {
           'bg-cover',
           'bg-no-repeat',
         )}
+        ref={ref}
         style={{
           backgroundImage: `url(${JSON.stringify(landscapeThumbnail ?? '')})`,
         }}
       ></div>
 
-      {(
+      {
         <div
           className={classnames(
             'absolute',
@@ -180,7 +183,7 @@ const VideoThumbnail: FC<VideoThumbnailProps> = (props) => {
         >
           {title}
         </div>
-      )}
+      }
     </div>
   );
 };

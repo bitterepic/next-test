@@ -19,7 +19,7 @@ export interface VideoOverlayProps {
   /** The source rect to transition from */
   sourceRect: Rect;
   /** A ref to the container */
-  ref: Ref<HTMLDialogElement>
+  ref: Ref<HTMLDialogElement>;
 }
 
 enum State {
@@ -59,9 +59,8 @@ const VideoOverlay: FC<VideoOverlayProps> = (props) => {
     ) {
       if (animate) {
         setState(State.START_OPEN);
-        requestAnimationFrame(() => {
-          setState(State.OPENING);
-        });
+        // NOTE: Opening is set in a ref to make sure we don't proceed to the
+        // next tep of the animation unil the initial DOM is rendered.
       } else {
         setState(State.OPENED);
       }
@@ -71,6 +70,7 @@ const VideoOverlay: FC<VideoOverlayProps> = (props) => {
     ) {
       if (animate) {
         setState(State.START_CLOSE);
+        // Start the animation the next frame
         requestAnimationFrame(() => {
           setState(State.CLOSING);
         });
@@ -187,6 +187,14 @@ const VideoOverlay: FC<VideoOverlayProps> = (props) => {
                 height={!openRenderState ? sourceRect.height : previewHeight}
                 interactive={false}
                 animate={animate}
+                ref={() => {
+                  // Set the next animation state once loaded
+                  if (state === State.START_OPEN) {
+                    requestAnimationFrame(() => {
+                      setState(State.OPENING);
+                    });
+                  }
+                }}
               />
             </div>
             <div

@@ -78,11 +78,7 @@ const VideoCard: FC<VideoCardProps> = (props) => {
           }}
           ref={() => {
             if (!animateReady) {
-              requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                  setAnimateReady(true);
-                });
-              });
+              setAnimateReady(true);
             }
           }}
           open={open}
