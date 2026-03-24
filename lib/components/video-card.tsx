@@ -1,7 +1,7 @@
 'use client';
 
 import { HomeScreen, ActiveVideo, Category, Rect } from '@/lib/types';
-import { type FC, useEffect, useCallback } from 'react';
+import { type FC, useLayoutEffect, useCallback } from 'react';
 import VideoThumbnail from './video-thumbnail';
 import Link from 'next/link';
 import { useRef, useState } from 'react';
@@ -60,12 +60,10 @@ const VideoCard: FC<VideoCardProps> = (props) => {
     }
   }, [sourceRect, setSourceRect]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (overlayActive !== active && active) {
-      setTimeout(() => {
-        syncSourceRect();
-        setOverlayActive(active);
-      }, 100);
+      syncSourceRect();
+      setOverlayActive(active);
     }
   }, [active, setOverlayActive, overlayActive, syncSourceRect]);
 
@@ -80,7 +78,11 @@ const VideoCard: FC<VideoCardProps> = (props) => {
           }}
           ref={() => {
             if (!animateReady) {
-              setAnimateReady(true);
+              requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                  setAnimateReady(true);
+                });
+              });
             }
           }}
           open={open}
