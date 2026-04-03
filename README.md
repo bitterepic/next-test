@@ -2,7 +2,7 @@
 
 1. Install [https://nodejs.org](https://nodejs.org/ja).
 2. `npm install`
-3. `npm run dev` to star the dev server.
+3. `npm run build && npm start` to star the server. It is recommended to not use the dev server to properly experience the UI which hurts the page transitions and loading.
 
 ## Architecture
 
