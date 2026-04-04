@@ -14,7 +14,16 @@ The design of the app attempts to minimize [content layout shift](https://web.de
 
 This page implementation mostly uses HTML standards for layout which helped with rapid development.  However, for UI like this I would strongly consider absolute placement of elements which makes it easier to animate transitions as well as optimize page speed by only rendering video thumbnails that are close to the viewport.
 
+Features
 
+- Transition animations between detail and list pages
+- Lazy loading of thumbnails with placeholder titles
+- Polished AI
+- Minimal spinners except where it conveys extra information
+
+Not Implemented:
+
+- Responsive layouts for mobile
 
 このリポジトリをForkして、映画情報を提供するサービスを作ってください。ページは、トップページとカテゴリ詳細ページと映画情報詳細ページの3つを作成してください。
 
